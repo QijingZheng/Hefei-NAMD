@@ -6,36 +6,41 @@ module hamil
   implicit none
 
   type TDKS 
-    integer :: ndim
+    integer                                      :: ndim        ! # of states selected
+                                                                ! ndim == BMAX - BMIN == NBASIS
     ! _[c,p,n] means current, previous, next
-    complex(kind=q), allocatable, dimension(:) :: psi_c
-    complex(kind=q), allocatable, dimension(:) :: psi_p
-    complex(kind=q), allocatable, dimension(:) :: psi_n
-    complex(kind=q), allocatable, dimension(:,:) :: psi_a
+    complex(kind=q), allocatable, dimension(:)   :: psi_c
+    complex(kind=q), allocatable, dimension(:)   :: psi_p
+    complex(kind=q), allocatable, dimension(:)   :: psi_n
+    complex(kind=q), allocatable, dimension(:,:) :: psi_a       ! All the states selected, psi_all
+                                                                ! psi_a(NBASIS, NAMDTIME)
     ! the result of hamiltonian acting on a vector
-    complex(kind=q), allocatable, dimension(:) :: hpsi
+    complex(kind=q), allocatable, dimension(:)   :: hpsi        ! temporary vector ?
     ! population
-    real(kind=q), allocatable, dimension(:,:) :: pop_a
-    real(kind=q), allocatable, dimension(:) :: norm
+    real(kind=q), allocatable, dimension(:,:)    :: pop_a       ! Population of each state
+                                                                ! pop_a(NBASIS, NAMDTIME)
+    real(kind=q), allocatable, dimension(:)      :: norm        ! normalization factor
+                                                                ! Psi = norm * psi_a ?
 
-    complex(kind=q), allocatable, dimension(:,:) :: ham_c
+    complex(kind=q), allocatable, dimension(:,:) :: ham_c       ! Hamiltonian matrix
     ! complex(kind=q), allocatable, dimension(:,:) :: ham_p
     ! complex(kind=q), allocatable, dimension(:,:) :: ham_n
     
     ! KS eigenvalues
-    real(kind=q), allocatable, dimension(:,:) :: eigKs
+    real(kind=q), allocatable, dimension(:,:)    :: eigKs       ! eig val of KS orbit extracted from WAVECAR
     ! Non-adiabatic couplings
-    real(kind=q), allocatable, dimension(:,:,:) :: NAcoup
+    real(kind=q), allocatable, dimension(:,:,:)  :: NAcoup
 
     ! surface hopping related
 
     ! Bkm = REAL(CONJG(Akm) * Ckm)
-    real(kind=q), allocatable, dimension(:) :: Bkm
-    real(kind=q), allocatable, dimension(:,:) :: sh_pops
-    real(kind=q), allocatable, dimension(:,:) :: sh_prop
+    real(kind=q), allocatable, dimension(:)      :: Bkm
+    real(kind=q), allocatable, dimension(:,:)    :: sh_pops
+    real(kind=q), allocatable, dimension(:,:)    :: sh_prop
 
     ! whether the memory has been allocated
-    logical :: LALLO = .FALSE.
+    ! Avoid fuzzy meaning, changed var name: LALLO -> LALLOCATED
+    logical                                      :: LALLOCATED = .FALSE.
 
   end type
 
@@ -51,10 +56,10 @@ module hamil
     integer :: i, j, N
 
     ! memory allocation
-    ks%ndim = inp%NBASIS
-    N = inp%NBASIS
+    ks%ndim = inp%NBASIS      ! NBASIS == BMAX - BMIN == # of bands considered
+    N       = inp%NBASIS      ! N == NBASIS
 
-    if (.NOT. ks%LALLO) then
+    if (.NOT. ks%LALLOCATED) then  ! Don't allocated memory ??
       allocate(ks%psi_c(N))
       allocate(ks%psi_p(N))
       allocate(ks%psi_n(N))
@@ -73,7 +78,7 @@ module hamil
       allocate(ks%Bkm(N))
       ! allocate(ks%ham_p(N,N))
       ! allocate(ks%ham_n(N,N))
-      ks%LALLO = .TRUE.
+      ks%LALLOCATED = .TRUE.
     end if
 
     ! cero = (0, 0)

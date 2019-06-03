@@ -7,23 +7,23 @@ module couplings
   implicit none
 
   type overlap
-    integer :: NBANDS
-    integer :: TSTEPS
-    real(kind=q) :: dt
-    real(kind=q), allocatable, dimension(:,:,:) :: Dij
-    real(kind=q), allocatable, dimension(:,:) :: Eig
+    integer                                     :: NBANDS
+    integer                                     :: TSTEPS
+    real(kind=q)                                :: dt
+    real(kind=q), allocatable, dimension(:,:,:) :: Dij    ! Coupling tensor, Dij(NBANDS, NBANDS, TSTEPS)
+    real(kind=q), allocatable, dimension(:,:)   :: Eig    ! EigVal of each state,  Eig(NBANDS, TSTEPS)
   end type
 
   contains
 
   subroutine CoupFromFile(olap)
     implicit none
-    type(overlap), intent(inout) :: olap
-    integer :: i, j, k, ierr, irec
-    integer :: irecordL
-    real(kind=q) :: recordL, rnbands, rnsw, rdt
-    ! to find out the record length
-    real(kind=q), allocatable, dimension(:)  :: values
+    type(overlap), intent(inout)            :: olap
+    integer                                 :: i, j, k, ierr, irec
+    integer                                 :: irecordL
+    real(kind=q)                            :: recordL, rnbands, rnsw, rdt
+                                                          ! to find out the record length
+    real(kind=q), allocatable, dimension(:) :: values
 
     open(unit=20, file='COUPCAR', access='direct', form='unformatted', &
          status = 'unknown', recl=256, iostat=ierr)

@@ -74,7 +74,7 @@ module fileio
       integer :: ierr, i
       logical :: lext
 
-      ! set default values for thos parameters
+      ! set default values for those parameters
       rundir = 'run'
       tbinit = 'INICON'
       bmin = 0
@@ -96,7 +96,8 @@ module fileio
         write(*,*) "I/O error with input file: 'inp'"
       end if
 
-      read(unit=8, nml=NAMDPARA)
+      read(unit=8, nml=NAMDPARA)    ! Use namelist to read variables' value
+          ! This is why the '&NAMDPARA' must be written at the beginning of 'inp' file
       close(unit=8)
 
       allocate(inp%INIBAND_A(nsample), inp%NAMDTINI_A(nsample))
@@ -111,6 +112,7 @@ module fileio
         close(9)
       end if
 
+      !                           WHY REMOVED ?
       ! do some checking...
       ! put the following checks in the future version
       ! if (bmin <= 0 .OR. bmax <= 0 .OR. bmin >= bmax) then
