@@ -16,7 +16,7 @@ module couplings
 
   contains
 
-  subroutine CoupFromFile(olap)
+  subroutine CoupFromFile(olap)                           ! Read CoupCAR from previously calculated results
     implicit none
     type(overlap), intent(inout)            :: olap
     integer                                 :: i, j, k, ierr, irec
@@ -103,7 +103,7 @@ module couplings
   !                                 (<psi_i(t)|psi_j(t+dt)> -
   !                                  <psi_j(t)|psi_i(t+dt)>) / (2dt)
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  subroutine CoupIJ(waveA, waveB, Cij)
+  subroutine CoupIJ(waveA, waveB, Cij)                      ! Calc NAC in reciprocal space, how ?
     implicit none
 
     type(waveinfo), intent(in) :: waveA, waveB
@@ -112,10 +112,10 @@ module couplings
     type(psi) :: ket
     ! <psi_i(t)| d/dt |(psi_j(t))>
     ! The coupling as defined above is a real number
-    real(kind=q), dimension(:,:), intent(inout)  :: Cij
+    real(kind=q), dimension(:,:), intent(inout)  :: Cij     ! NAC is real
     ! stores plane wave coefficients of the wavefunctions
-    complex(kind=qs), allocatable, dimension(:,:) :: crA
-    complex(kind=qs), allocatable, dimension(:,:) :: crB
+    complex(kind=qs), allocatable, dimension(:,:) :: crA    ! stores the plane-wave coefficients for i-th band at time t
+    complex(kind=qs), allocatable, dimension(:,:) :: crB    ! ........................................................ t+dt
     real(kind=q) :: pij, pji
 
     allocate(crA(waveA%NPLWS(1), waveA%NBANDS))
@@ -125,11 +125,11 @@ module couplings
     ! the Gamma point WAVECAR has only ONE kpoint
     do i=1, waveA%NBANDS
         ! i-th band, firtst kpoint, first spin
-        call setKet(ket, i, 1,1)
+        call setKet(ket, i, 1,1)    ! ket->iband = i, ket->ikpts = 1, ket->ispin = 1
         ! the coefficients are normalized in the LOADWAVE subroutine
         ! here, we don't have to worry about normalization problem
-        call LOADWAVE(crA(:,i), ket, waveA)
-        call LOADWAVE(crB(:,i), ket, waveB)
+        call LOADWAVE(crA(:,i), ket, waveA)  ! Load the i-th band waveA coefficients
+        call LOADWAVE(crB(:,i), ket, waveB)  ! Load the i-th band waveB coefficients
     end do
 
     ! Initialization
@@ -137,19 +137,17 @@ module couplings
 
     ! <psi_i(t)| d/dt |(psi_j(t))> ~=~
     !                             (<psi_i(t)|psi_j(t+dt)> - <psi_j(t)|psi_i(t+dt)>) / (2dt)
-    write(*,*) "#", trim(waveA%WAVECAR)
+    write(*,*) "#", trim(waveA%WAVECAR)     ! print current WAVECAR file path
     do i=1, waveA%NBANDS
       ! write(*,*) "C_ZERO: ", REAL(crA(1,i)), AIMAG(crA(1,i))
-      do j=i+1, waveA%NBANDS
-        ! <psi_i(t)|psi_j(t+dt)> 
-        pij = SUM(CONJG(crA(:,i)) * crB(:,j))
-        ! <psi_j(t)|psi_i(t+dt)> 
-        pji = SUM(CONJG(crB(:,i)) * crA(:,j))
+      do j=i+1, waveA%NBANDS 
+        pij = SUM(CONJG(crA(:,i)) * crB(:,j))         ! <psi_i(t)|psi_j(t+dt)> 
+        pji = SUM(CONJG(crB(:,i)) * crA(:,j))         ! <psi_j(t)|psi_i(t+dt)> 
 
         ! Not devided by 2 * dt
         Cij(i, j) = pij - pji
         if ( i /= j ) then
-          Cij(j, i) = -Cij(i, j)
+          Cij(j, i) = -Cij(i, j)                      ! symmetry
         end if
       end do
     end do
@@ -169,11 +167,11 @@ module couplings
   subroutine initAB(FileA, FileB, waveA, waveB)
     implicit none
 
-    character(len=*), intent(in) :: FileA, FileB
-    type(waveinfo), intent(inout)  :: waveA, waveB
+    character(len=*), intent(in)      :: FileA, FileB   ! I prefer using fnameA than FileA
+    type(waveinfo),   intent(inout)   :: waveA, waveB   ! better to unify the variable nameclature
 
-    integer, parameter :: IUA = 12
-    integer, parameter :: IUB = 13
+    integer, parameter :: IUA = 12                  ! File unit number for FileA
+    integer, parameter :: IUB = 13                  ! File unit number for FileB
 
     waveA%IU = IUA
     waveA%WAVECAR = FileA

@@ -28,12 +28,9 @@ module wavecar
     ! Not needed in coefficients reading
     ! integer, allocatable, dimension(:) :: LPCTX, LPCTY, LPCTZ
 
-    ! number of plane waves for each k-point
-    integer, allocatable, dimension(:) :: NPLWS
-    ! Maximum plane wave numbers
-    integer :: MAXPLWS
-    ! k-point vector
-    real(kind=q), allocatable, dimension(:,:) :: VKPTS
+    integer, allocatable, dimension(:) :: NPLWS           ! number of plane waves for each k-point 
+    integer :: MAXPLWS                                    ! Maximum plane wave numbers
+    real(kind=q), allocatable, dimension(:,:) :: VKPTS    ! k-point vector
     real(kind=q), allocatable, dimension(:,:,:) :: BANDS
 
     ! Not needed in coefficients reading
@@ -73,14 +70,17 @@ module wavecar
     subroutine openwav(wavecar, IU)
       implicit none
 
-      character(len=*), intent(in)   :: wavecar
-      integer, intent(in)   :: IU
-      integer, parameter :: irecl = 48
-      real(kind=q)       :: rdum, rispin, rtag
-      integer            :: ierr, idum
+      character(len=*), intent(in)  :: wavecar              ! WAVECAR file name
+      integer, intent(in)           :: IU
+
+      integer, parameter            :: irecl = 48
+      real(kind=q)                  :: rdum, rispin, rtag   ! rdum -> record length
+                                                            ! rispin -> corresponding ISPIN in WAVECAR
+                                                            ! rtag -> VASP version tag
+      integer                       :: ierr, idum
 
       open(unit=IU, file=wavecar, access='direct', form='unformatted', &
-           status = 'unknown', recl=irecl, iostat=ierr)
+           status='unknown', recl=irecl, iostat=ierr)
       if(ierr /= 0) then
           write(*,*) "File I/O error with " // wavecar
           stop
