@@ -118,7 +118,7 @@ module couplings
     complex(kind=qs), allocatable, dimension(:,:) :: crB    ! ........................................................ t+dt
     real(kind=q) :: pij, pji
 
-    allocate(crA(waveA%NPLWS(1), waveA%NBANDS))
+    allocate(crA(waveA%NPLWS(1), waveA%NBANDS))             ! only 1 kpoint, use wave->NPLWS(1)
     allocate(crB(waveB%NPLWS(1), waveB%NBANDS))
 
     ! read in all the wavefunctions
@@ -128,8 +128,8 @@ module couplings
         call setKet(ket, i, 1,1)    ! ket->iband = i, ket->ikpts = 1, ket->ispin = 1
         ! the coefficients are normalized in the LOADWAVE subroutine
         ! here, we don't have to worry about normalization problem
-        call LOADWAVE(crA(:,i), ket, waveA)  ! Load the i-th band waveA coefficients
-        call LOADWAVE(crB(:,i), ket, waveB)  ! Load the i-th band waveB coefficients
+        call LOADWAVE(crA(:,i), ket, waveA)                 ! Load the i-th band waveA coefficients
+        call LOADWAVE(crB(:,i), ket, waveB)                 ! Load the i-th band waveB coefficients
     end do
 
     ! Initialization
@@ -137,17 +137,17 @@ module couplings
 
     ! <psi_i(t)| d/dt |(psi_j(t))> ~=~
     !                             (<psi_i(t)|psi_j(t+dt)> - <psi_j(t)|psi_i(t+dt)>) / (2dt)
-    write(*,*) "#", trim(waveA%WAVECAR)     ! print current WAVECAR file path
+    write(*,*) "#", trim(waveA%WAVECAR)                     ! print current WAVECAR file path
     do i=1, waveA%NBANDS
       ! write(*,*) "C_ZERO: ", REAL(crA(1,i)), AIMAG(crA(1,i))
       do j=i+1, waveA%NBANDS 
-        pij = SUM(CONJG(crA(:,i)) * crB(:,j))         ! <psi_i(t)|psi_j(t+dt)> 
-        pji = SUM(CONJG(crB(:,i)) * crA(:,j))         ! <psi_j(t)|psi_i(t+dt)> 
+        pij = SUM(CONJG(crA(:,i)) * crB(:,j))               ! <psi_i(t)|psi_j(t+dt)> 
+        pji = SUM(CONJG(crB(:,i)) * crA(:,j))               ! <psi_j(t)|psi_i(t+dt)> 
 
         ! Not devided by 2 * dt
         Cij(i, j) = pij - pji
         if ( i /= j ) then
-          Cij(j, i) = -Cij(i, j)                      ! symmetry
+          Cij(j, i) = -Cij(i, j)                            ! symmetry
         end if
       end do
     end do
@@ -167,11 +167,11 @@ module couplings
   subroutine initAB(FileA, FileB, waveA, waveB)
     implicit none
 
-    character(len=*), intent(in)      :: FileA, FileB   ! I prefer using fnameA than FileA
-    type(waveinfo),   intent(inout)   :: waveA, waveB   ! better to unify the variable nameclature
-
-    integer, parameter :: IUA = 12                  ! File unit number for FileA
-    integer, parameter :: IUB = 13                  ! File unit number for FileB
+    character(len=*), intent(in)      :: FileA, FileB       ! I prefer using fnameA than FileA
+    type(waveinfo),   intent(inout)   :: waveA, waveB       ! better to unify the variable nameclature
+                                                            
+    integer, parameter :: IUA = 12                          ! File unit number for FileA
+    integer, parameter :: IUB = 13                          ! File unit number for FileB
 
     waveA%IU = IUA
     waveA%WAVECAR = FileA
@@ -183,9 +183,8 @@ module couplings
 
     if (waveA%ISPIN /= waveB%ISPIN) stop
     if (waveA%NKPTS /= waveB%NKPTS) stop
-    if (waveA%NBANDS /= waveB%NBANDS) stop
-    ! only one K-point
-    if (waveA%NPLWS(1) /= waveB%NPLWS(1)) stop
+    if (waveA%NBANDS /= waveB%NBANDS) stop 
+    if (waveA%NPLWS(1) /= waveB%NPLWS(1)) stop              ! only one K-point
 
   end subroutine
 
@@ -208,27 +207,27 @@ module couplings
 
   subroutine TDCoupIJ(rundir, olap, olap_sec, inp)
     implicit none
-    character(len=*), intent(in) :: rundir
-    type(overlap), intent(inout) :: olap
-    type(overlap), intent(inout) :: olap_sec
-    type(namdInfo), intent(in) :: inp
-    
-    logical :: lcoup
-    integer :: i, j, nsw, ndigit
-    character(len=256) :: fileA, fileB, buf, tmp
-    type(waveinfo) :: waveA, waveB
+    character(len=*), intent(in)  :: rundir
+    type(overlap), intent(inout)  :: olap
+    type(overlap), intent(inout)  :: olap_sec
+    type(namdInfo), intent(in)    :: inp
+
+    logical                       :: lcoup
+    integer                       :: i, j, nsw, ndigit
+    character(len=256)            :: fileA, fileB, buf, tmp       ! file name strings, fmt and tmp string
+    type(waveinfo)                :: waveA, waveB
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! Initialization
     olap%NBANDS = inp%NBANDS
     olap%TSTEPS = inp%NSW
-    olap%dt = inp%POTIM
+    olap%dt     = inp%POTIM
     allocate(olap%Dij(olap%NBANDS, olap%NBANDS, olap%TSTEPS-1))
     allocate(olap%Eig(olap%NBANDS, olap%TSTEPS-1))
 
     olap_sec%NBANDS = inp%NBASIS
     olap_sec%TSTEPS = inp%NSW
-    olap_sec%dt = inp%POTIM
+    olap_sec%dt     = inp%POTIM
     allocate(olap_sec%Dij(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
     allocate(olap_sec%Eig(olap_sec%NBANDS, olap_sec%TSTEPS-1))
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -236,7 +235,8 @@ module couplings
     nsw = olap%TSTEPS
     write(buf,*) nsw
     ndigit = len_trim(adjustl(buf))
-    write(buf,*) '(I0.', ndigit, ')'
+    write(buf,*) '(I0.', ndigit, ')'                      ! number in the WAVECAR file path
+                                                          ! I suggest using only one line of `write(fname, fmt) blabla' instead.
 
     inquire(file='COUPCAR', exist=lcoup)
     if (lcoup) then
@@ -270,7 +270,7 @@ module couplings
 
         call finishAB(waveA, waveB)
       end do
-      olap_sec%Eig(:,:) = olap%Eig(inp%BMIN:inp%BMAX, :)
+      olap_sec%Eig(:,:)   = olap%Eig(inp%BMIN:inp%BMAX, :)
       olap_sec%Dij(:,:,:) = olap%Dij(inp%BMIN:inp%BMAX, inp%BMIN:inp%BMAX, :)
       ! After reading, write the couplings to disk
       call CoupToFile(olap)

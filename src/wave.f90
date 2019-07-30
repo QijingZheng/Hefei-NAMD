@@ -13,11 +13,11 @@ module wavecar
   type waveinfo
     ! name of wavecar
     character(len=255) :: WAVECAR
-    real(kind=q) :: ENCUT
-    type(latt) :: MyLatt
-    integer :: ISPIN
-    integer :: NKPTS
-    integer :: NBANDS
+    real(kind=q)       :: ENCUT
+    type(latt)         :: MyLatt
+    integer            :: ISPIN
+    integer            :: NKPTS
+    integer            :: NBANDS
     ! integer :: NGPTAR(3)
 
     ! precision of wavecar
@@ -28,10 +28,11 @@ module wavecar
     ! Not needed in coefficients reading
     ! integer, allocatable, dimension(:) :: LPCTX, LPCTY, LPCTZ
 
-    integer, allocatable, dimension(:) :: NPLWS           ! number of plane waves for each k-point 
-    integer :: MAXPLWS                                    ! Maximum plane wave numbers
-    real(kind=q), allocatable, dimension(:,:) :: VKPTS    ! k-point vector
-    real(kind=q), allocatable, dimension(:,:,:) :: BANDS
+    integer, allocatable, dimension(:)           :: NPLWS           ! number of plane waves for each k-point
+    integer                                      :: MAXPLWS         ! Maximum plane wave numbers
+    real(kind=q), allocatable, dimension(:,:)    :: VKPTS           ! k-point vector
+    real(kind=q), allocatable, dimension(:,:,:)  :: BANDS           ! EigVals of each band
+                                                                    !  BANDS(nbands, nkpts, ispin)
 
     ! Not needed in coefficients reading
     ! G-vector index of stored wavefunction
@@ -55,7 +56,7 @@ module wavecar
     subroutine setKet(ket, ib, ik, is)
       implicit none
       type(psi), intent(inout) :: ket
-      integer, intent(in) :: ib, ik, is
+      integer, intent(in)      :: ib, ik, is
 
       ket%iband = ib
       ket%ikpts = ik
@@ -73,7 +74,7 @@ module wavecar
       character(len=*), intent(in)  :: wavecar              ! WAVECAR file name
       integer, intent(in)           :: IU
 
-      integer, parameter            :: irecl = 48
+      integer, parameter            :: irecl = 48           ! first 48 bytes of data as 3 double vars
       real(kind=q)                  :: rdum, rispin, rtag   ! rdum -> record length
                                                             ! rispin -> corresponding ISPIN in WAVECAR
                                                             ! rtag -> VASP version tag
