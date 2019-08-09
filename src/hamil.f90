@@ -14,8 +14,7 @@ module hamil
     complex(kind=q), allocatable, dimension(:)   :: psi_n
     complex(kind=q), allocatable, dimension(:,:) :: psi_a       ! All the states selected, psi_all
                                                                 ! psi_a(NBASIS, NAMDTIME)
-    ! the result of hamiltonian acting on a vector
-    complex(kind=q), allocatable, dimension(:)   :: hpsi        ! temporary vector ?
+    complex(kind=q), allocatable, dimension(:)   :: hpsi        ! the result of hamiltonian acting on a vector
     ! population
     real(kind=q), allocatable, dimension(:,:)    :: pop_a       ! Population of each state
                                                                 ! pop_a(NBASIS, NAMDTIME)
@@ -27,9 +26,8 @@ module hamil
     ! complex(kind=q), allocatable, dimension(:,:) :: ham_n
     
     ! KS eigenvalues
-    real(kind=q), allocatable, dimension(:,:)    :: eigKs       ! eig val of KS orbit extracted from WAVECAR
-    ! Non-adiabatic couplings
-    real(kind=q), allocatable, dimension(:,:,:)  :: NAcoup
+    real(kind=q), allocatable, dimension(:,:)    :: eigKs       ! EigVal of KS orbit extracted from WAVECAR
+    real(kind=q), allocatable, dimension(:,:,:)  :: NAcoup      ! Non-adiabatic couplings
 
     ! surface hopping related
 
@@ -46,6 +44,9 @@ module hamil
 
   contains
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! initializes time-dependent kohn-sham wavefunction
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine initTDKS(ks, inp, olap)
     implicit none
 
@@ -102,13 +103,16 @@ module hamil
   end subroutine
 
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! constructing the hamiltonian
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine make_hamil(TION, TELE, ks, inp)
     implicit none
 
-    type(TDKS), intent(inout) :: ks
-    type(namdInfo), intent(in) :: inp
-    integer, intent(in) :: TION, TELE
+    type(TDKS), intent(inout)  :: ks                ! Kohn-Sham orbit
+    type(namdInfo), intent(in) :: inp               ! Input options
+    integer, intent(in)        :: TION, TELE        ! TION <- ionic time step
+                                                    ! TELE <- electronic time index
 
     integer :: i
 
@@ -124,25 +128,27 @@ module hamil
     
     ! the energy eigenvalue part
     do i=1, ks%ndim
-      ks%ham_c(i,i) = ks%eigKs(i,TION) + &
+      ks%ham_c(i,i) = ks%eigKs(i,TION) + &                                        ! Diagonal part is the eigvals from WAVECAR
                      (ks%eigKs(i,TION+1) - ks%eigKs(i,TION)) * TELE / inp%NELM
     end do
   end subroutine
 
-  ! Acting the hamiltonian on the state vector
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Imposing the hamiltonian on the state vector
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine hamil_act(ks)
     implicit none
     type(TDKS), intent(inout) :: ks
-    integer :: i, j, N
-    complex(kind=q) :: tmp
+    integer                   :: i, j, N
+    complex(kind=q)           :: tmp
 
     N = ks%ndim
     do i=1, N
-      tmp = cero
+      tmp = cero                                    ! cero <- complex zero === (0, 0)
       do j=1, N
-        tmp = tmp + ks%ham_c(i,j) * ks%psi_c(j)
+        tmp = tmp + ks%ham_c(i,j) * ks%psi_c(j)     ! hpsi = H * |psi_c>
       end do
-      ks%hpsi(i) = tmp
+      ks%hpsi(i) = tmp                              ! why not use ks%hpsi = matmul(ks&ham_c, ks%psi_c) ?
     end do
 
   end subroutine
