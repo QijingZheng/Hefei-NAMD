@@ -6,28 +6,25 @@ module fileio
   type namdInfo
     integer :: BMIN
     integer :: BMAX
-    integer :: NBASIS      ! No. of adiabatic states as basis
-    integer :: NBANDS      ! No. of band of the system
-    integer :: INIBAND     ! inititial adiabatic state of excited electron/hole
-    integer :: NSW         ! No. of MD steps
-    integer :: NAMDTINI    ! Initial time step of NAMD
-    integer :: NAMDTIME    ! No. of steps of NAMD
-    integer, allocatable, dimension(:) :: NAMDTINI_A    ! No. of steps of NAMD
-    integer, allocatable, dimension(:) :: INIBAND_A     ! No. of steps of NAMD
-    integer :: NTRAJ       ! No. of surface hopping trajectories
-    integer :: NELM        ! No. of steps of electron wave propagation
-    integer :: NSAMPLE     ! No. of steps of electron wave propagation
+    integer :: NBASIS                                       ! No. of adiabatic states as basis
+    integer :: NBANDS                                       ! No. of band of the system
+    integer :: INIBAND                                      ! inititial adiabatic state of excited electron/hole
+    integer :: NSW                                          ! No. of MD steps
+    integer :: NAMDTINI                                     ! Initial time step of NAMD
+    integer :: NAMDTIME                                     ! No. of steps of NAMD
+    integer, allocatable, dimension(:) :: NAMDTINI_A        ! 
+    integer, allocatable, dimension(:) :: INIBAND_A         ! 
+    integer :: NTRAJ                                        ! No. of surface hopping trajectories
+    integer :: NELM                                         ! No. of steps of electron wave propagation
+    integer :: NSAMPLE                                      ! No. of steps of electron wave propagation
 
-    real(kind=q) :: POTIM  ! Time step of MD run
-    real(kind=q) :: TEMP   ! MD Temperature
+    real(kind=q) :: POTIM                                   ! Time step of MD run
+    real(kind=q) :: TEMP                                    ! MD Temperature
 
-    ! hole or electron surface hopping
-    logical :: LHOLE
-    ! whether to perform surface hopping, right now the value is .TRUE.
-    logical :: LSHP
-    logical :: LCPTXT
-    ! running directories
-    character(len=256) :: RUNDIR
+    logical :: LHOLE                                        ! hole or electron surface hopping
+    logical :: LSHP                                         ! whether to perform surface hopping, right now the value is .TRUE.
+    logical :: LCPTXT                                       ! whether to read couplings data from existing file
+    character(len=256) :: RUNDIR                            ! running directories
     character(len=256) :: TBINIT
 
   end type

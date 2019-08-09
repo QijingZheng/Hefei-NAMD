@@ -5,9 +5,10 @@ module shop
   implicit none
 
   contains
-
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! initialize the random seed from the system clock
   ! code from: http://fortranwiki.org/fortran/show/random_seed
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine init_random_seed()
     implicit none
     integer :: i, n, clock
@@ -24,15 +25,19 @@ module shop
     deallocate(seed)
   end subroutine
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! calculate `which` state the electron/hole should hop to
+  !   `which` is the state index
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine whichToHop(tion, ks, which)
     implicit none
 
-    integer, intent(in) :: tion
-    integer, intent(inout) :: which
+    integer, intent(in)    :: tion              ! ionic time step
+    integer, intent(inout) :: which             !
     type(TDKS), intent(in) :: ks
 
-    integer :: i
-    real(kind=q) :: lower, upper, r
+    integer                :: i
+    real(kind=q)           :: lower, upper, r
 
     which = 0
     call random_number(r)
@@ -53,26 +58,33 @@ module shop
 
   end subroutine
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! Calculate the hopping probabilities
+  ! Gjk = Pjk * Bjk                             Total SH probability imposed on SH action
+  ! Pjk = SH probability from FSSH
+  ! Bjk = | exp(-deltaE / kBT) if deltaE >  0
+  !       |         1          if deltaE <= 0   This part imposes detailed balance to SH action
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine calcprop(tion, cstat, ks, inp)
     implicit none
 
-    type(TDKS), intent(inout) :: ks
+    type(TDKS), intent(inout)  :: ks
     type(namdInfo), intent(in) :: inp
-    integer, intent(in) :: tion
-    integer, intent(in) :: cstat
+    integer, intent(in)        :: tion                          ! ionic time step
+    integer, intent(in)        :: cstat                         ! current state index
 
-    integer :: i, j
-    real(kind=q) :: Akk
-    real(kind=q) :: dE, kbT
+    integer                    :: i, j
+    real(kind=q)               :: Akk
+    real(kind=q)               :: dE, kbT
 
-    Akk = CONJG(ks%psi_a(cstat, tion)) * ks%psi_a(cstat, tion)
+    Akk = CONJG(ks%psi_a(cstat, tion)) * ks%psi_a(cstat, tion)                  ! |ks%psi_a(cstat, tion)|^2
     ! Bkm = REAL(CONJG(Akm) * Ckm)
-    ks%Bkm = -2. * REAL(CONJG(ks%psi_a(cstat, tion)) * ks%psi_a(:, tion) * &
-                    ks%NAcoup(cstat, :, tion))
+    ks%Bkm = -2. * REAL(CONJG(ks%psi_a(cstat, tion)) * ks%psi_a(:, tion) * &    ! 
+                    ks%NAcoup(cstat, :, tion))                                  ! CPA here
 
     ks%sh_prop(:,tion) = ks%Bkm / Akk * inp%POTIM
 
-    kbT = inp%TEMP * BOLKEV
+    kbT = inp%TEMP * BOLKEV                                                     ! Boltzmann factor
 
     if (inp%LHOLE) then
       do i = 1, cstat
@@ -92,16 +104,17 @@ module shop
 
   end subroutine
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! calculate surface hopping probabilities
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine runSH(ks, inp)
     implicit none
 
     type(TDKS), intent(inout) :: ks
     type(namdInfo), intent(in) :: inp
-    integer :: i, j, tion               ! tion  <-  dummy variable, denote time step index
-    integer :: istat, cstat, which
-    ! istat  <-  # of states, aka # of bands selected, also be the initial step
-    ! cstat  <-  current stat
+    integer :: i, j, tion                                 ! tion  <-  dummy variable, denote time step index
+    integer :: istat, cstat, which                        ! istat  <-  # of states, aka # of bands selected, also be the initial step
+                                                          ! cstat  <-  current stat index
 
     ks%sh_pops = 0
     ks%sh_prop = 0
@@ -129,7 +142,9 @@ module shop
     ! end do
   end subroutine
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! need a subroutine here to write the results we need
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine printSH(ks, inp)
     implicit none
     type(TDKS), intent(in) :: ks
