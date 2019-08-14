@@ -110,15 +110,15 @@ module shop
   subroutine runSH(ks, inp)
     implicit none
 
-    type(TDKS), intent(inout) :: ks
+    type(TDKS), intent(inout)  :: ks
     type(namdInfo), intent(in) :: inp
-    integer :: i, j, tion                                 ! tion  <-  dummy variable, denote time step index
-    integer :: istat, cstat, which                        ! istat  <-  # of states, aka # of bands selected, also be the initial step
-                                                          ! cstat  <-  current stat index
+    integer                    :: i, j, tion                        ! tion  <-  dummy variable, denote time step index
+    integer                    :: istat, cstat, which               ! istat  <-  # of states, aka # of bands selected, also be the initial step
+                                                                    ! cstat  <-  current stat index
 
     ks%sh_pops = 0
     ks%sh_prop = 0
-    istat = inp%INIBAND - inp%BMIN + 1
+    istat      = inp%INIBAND - inp%BMIN + 1
 
     ! initialize the random seed for ramdom number production
     call init_random_seed()
