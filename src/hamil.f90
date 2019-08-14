@@ -134,7 +134,7 @@ module hamil
   end subroutine
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! Imposing the hamiltonian on the state vector
+  ! Applying the hamiltonian on the state vector
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   subroutine hamil_act(ks)
     implicit none

@@ -102,6 +102,11 @@ module shop
     ! write(*,*) (ks%Bkm(i), i=1, ks%ndim) 
     ! write(*,*) (ks%sh_prop(i, tion), i=1, ks%ndim) 
 
+    !!!!!!
+    ! POSSIBLE OPTIMIZATION HERE.
+    ! sh_prop is independent of time, could be calculated and stored in advance.
+    !!!!!!
+
   end subroutine
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -115,6 +120,7 @@ module shop
     integer                    :: i, j, tion                        ! tion  <-  dummy variable, denote time step index
     integer                    :: istat, cstat, which               ! istat  <-  # of states, aka # of bands selected, also be the initial step
                                                                     ! cstat  <-  current stat index
+                                                                    ! which  <-  target state that electron/hole will hop to
 
     ks%sh_pops = 0
     ks%sh_prop = 0
@@ -127,8 +133,8 @@ module shop
       ! in the first step, current step always equal initial step
       cstat = istat
       do tion=1, inp%NAMDTIME
-        call calcprop(tion, cstat, ks, inp)
-        call whichToHop(tion, ks, which)
+        call calcprop(tion, cstat, ks, inp)                         ! random stuff not needed, can be calculated in advanced
+        call whichToHop(tion, ks, which)                            ! random stuff needed, cannot be predicted
         if (which > 0) cstat = which
         ks%sh_pops(cstat, tion) = ks%sh_pops(cstat, tion) + 1
       end do
