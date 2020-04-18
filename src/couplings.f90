@@ -312,7 +312,7 @@ module couplings
                                                 i=inp%BMIN, inp%BMAX)
     end do
 
-    close(unit=23)
+    close(unit=22)
     close(unit=23)
   end subroutine
 
@@ -343,7 +343,7 @@ module couplings
                                                    i=1, inp%NBASIS)
     end do
 
-    close(unit=23)
+    close(unit=22)
     close(unit=23)
   end subroutine
 end module couplings
