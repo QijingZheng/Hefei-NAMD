@@ -330,7 +330,7 @@ module couplings
     end if
     open(unit=23, file='NATXT', status='unknown', action='read', iostat=ierr)
     if (ierr /= 0) then
-      write(*,*) "EIGTXT does NOT exist!"
+      write(*,*) "NATXT does NOT exist!"
       stop
     end if
 
