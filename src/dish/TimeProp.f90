@@ -83,7 +83,7 @@ module TimeProp
     integer :: i,j,tele
     real(kind=q) :: edt
 
-    call make_hamil(tion, ks, inp)
+    call make_hamil_rtime(tion, ks, inp)
     !Debug only
     !write(98,'(*(E))') tion,real(dconjg(ks%psi_c)*ks%psi_c),real(sum(dconjg(ks%psi_c)*ks%psi_c))
     

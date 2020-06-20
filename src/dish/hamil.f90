@@ -13,6 +13,7 @@ module hamil
     !!!!complex(kind=q), allocatable, dimension(:) :: psi_p
     !!!!complex(kind=q), allocatable, dimension(:) :: psi_n
     !! complex(kind=q), allocatable, dimension(:,:) :: psi_a
+    !! real(kind=q), allocatable, dimension(:) :: norm
     ! the result of hamiltonian acting on a vector
     complex(kind=q), allocatable, dimension(:) :: hpsi
     ! population
@@ -112,9 +113,8 @@ module hamil
     ks%NAcoup = olap%Dij / (2*inp%POTIM)
   end subroutine
 
-
-    ! constructing the hamiltonian
-  subroutine make_hamil(TION, ks, inp)
+  ! constructing the hamiltonian by replicating NAC
+  subroutine make_hamil_rtime(TION, ks, inp)
     implicit none
 
     type(TDKS), intent(inout) :: ks
@@ -147,7 +147,7 @@ module hamil
     ! the energy eigenvalue part
     do i=1, ks%ndim
       ks%ham_c(i,i) = ks%eigKs(i,RTIME) 
-     ! ks%ham_dt(i,i) =(ks%eigKs(i,XTIME) - ks%eigKs(i,TION))  / REAL(inp%NELM,q)
+      ! ks%ham_dt(i,i) =(ks%eigKs(i,XTIME) - ks%eigKs(i,TION))  / REAL(inp%NELM,q)
     end do
 
     !if(TION> 967) then
@@ -155,12 +155,39 @@ module hamil
     !end if
   end subroutine
 
+  ! constructing the hamiltonian
+  subroutine make_hamil(TION,  ks, inp)
+    implicit none
+
+    type(TDKS), intent(inout) :: ks
+    type(namdInfo), intent(in) :: inp
+    integer, intent(in) :: TION
+
+    integer :: i
+
+    ! the hamiltonian contains two parts, which are obtained by interpolation
+    ! method between two ionic tims step
+
+    ! The non-adiabatic coupling part
+    ks%ham_c(:,:) = ks%NAcoup(:,:,TION)
+    !               (ks%NAcoup(:,:,TION+1) - ks%NAcoup(:,:,TION)) * TELE / inp%NELM
+
+    ! multiply by -i * hbar
+    ks%ham_c = -imgUnit * hbar * ks%ham_c 
+    
+    ! the energy eigenvalue part
+    do i=1, ks%ndim
+      ks%ham_c(i,i) = ks%eigKs(i,TION)
+      !                     (ks%eigKs(i,TION+1) - ks%eigKs(i,TION)) * TELE / inp%NELM
+    end do
+  end subroutine
+
   ! Acting the hamiltonian on the state vector
   subroutine hamil_act(ks)
     implicit none
     type(TDKS), intent(inout) :: ks
     integer :: i, j, N
- !   complex(kind=q),dimension(ks%ndim) :: tmp
+    !complex(kind=q),dimension(ks%ndim) :: tmp
 
     N = ks%ndim
     ks%hpsi = cero
@@ -169,7 +196,7 @@ module hamil
         ks%hpsi(j) =ks%hpsi(j)+ks%ham_c(j,i) * ks%psi_c(i)
       end do
     end do
- ! ks%hpsi= matmul(ks%psi_c, ks%ham_c)
+    !ks%hpsi= matmul(ks%psi_c, ks%ham_c)
   end subroutine
 
 end module

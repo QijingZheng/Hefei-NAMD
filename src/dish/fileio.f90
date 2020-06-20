@@ -27,7 +27,7 @@ module fileio
     ! hole or electron surface hopping
     logical :: LHOLE
     ! whether to perform surface hopping, right now the value is .TRUE.
-    !! logical :: LSHP
+    logical :: LSHP
     ! whether to perform DISH, right now the value is .TRUE.
     logical :: LDISH   !!
     logical :: LCPTXT
@@ -67,7 +67,7 @@ module fileio
       ! hole or electron surface hopping
       logical :: lhole
       ! surface hopping?
-      !! logical :: lshp
+      logical :: lshp
       logical :: ldish   !!
       logical :: lcpext
       logical :: lspace
@@ -103,7 +103,7 @@ module fileio
       ntraj = 1000
       nelm = 10
       lhole = .FALSE.
-      !! lshp = .TRUE.
+      lshp = .FALSE.
       ldish = .TRUE.
       ! namdtini = 1
       namdtime = 200
@@ -135,30 +135,33 @@ module fileio
         end do
         close(9)
       end if
-
-      allocate(inp%DEPHMATR(bmax - bmin + 1, bmax - bmin + 1))   !! read in the pure dephasing time matrix, the diagonal elements are zero
-      inquire(file=diinit, exist=lext)
-      if (.NOT. lext) then
-        write(*,*) "File containing initial conditions of DISH does NOT exist!"
-        stop
-      else
-        open(unit=10, file=diinit, action='read')
-        read(unit=10, fmt=*) ((inp%DEPHMATR(i,j), j=1, bmax - bmin + 1), i=1, bmax - bmin + 1)
-        do i = 1, bmax - bmin + 1
-          do j = 1, bmax - bmin + 1
-            if (i /= j) then
-              inp%DEPHMATR(j,i) = 1.0_q / inp%DEPHMATR(j, i)
-            end if
+      
+      if (ldish) then
+        allocate(inp%DEPHMATR(bmax - bmin + 1, bmax - bmin + 1))   !! read in the pure dephasing time matrix, the diagonal elements are zero
+        inquire(file=diinit, exist=lext)
+        if (.NOT. lext) then
+          write(*,*) "File containing initial conditions of DISH does NOT exist!"
+          stop
+        else
+          open(unit=10, file=diinit, action='read')
+          read(unit=10, fmt=*) ((inp%DEPHMATR(i,j), j=1, bmax - bmin + 1), i=1, bmax - bmin + 1)
+          do i = 1, bmax - bmin + 1
+            do j = 1, bmax - bmin + 1
+              if (i /= j) then
+                inp%DEPHMATR(j,i) = 1.0_q / inp%DEPHMATR(j, i)
+              end if
+            end do
           end do
-        end do
-        ! do i=1, bmax - bmin + 1
-        !   do j=1, bmax - bmin + 1
-        !     read(unit=10,fmt=*) inp%DEPHMATR(i, j)
-        !   end do
-        ! end do
-        close(10)
+          ! do i=1, bmax - bmin + 1
+          !   do j=1, bmax - bmin + 1
+          !     read(unit=10,fmt=*) inp%DEPHMATR(i, j)
+          !   end do
+          ! end do
+          close(10)
+        end if
       end if
-      if(lspace) then
+
+      if (lspace) then
         allocate(inp%ACBASIS(nacbasis, nelectron))
         inquire(file=spinit, exist=lext)
         if (.NOT. lext) then
@@ -170,6 +173,16 @@ module fileio
           close(11)
         end if
 
+      end if
+
+      if (realtime<=namdtime) then
+        realtime=namdtime
+      else
+        if (.NOT. ldish) then 
+          write(*,*) "We do not recommend replicating NAC in FSSH"
+          write(*,*) "Used NAMDTIME instead of REALTIME"
+          realtime=namdtime
+        end if
       end if
       ! do some checking...
       ! put the following checks in the future version
@@ -200,11 +213,11 @@ module fileio
       inp%NBASIS   = bmax - bmin + 1
       inp%NSW      = nsw
       inp%NBANDS   = nbands
-      inp%NAMDTIME = namdtime
+      inp%NAMDTIME = realtime 
       inp%NTRAJ    = ntraj
       inp%NELM     = nelm
       inp%LHOLE    = lhole
-      !! inp%LSHP     = lshp
+      inp%LSHP     = lshp
       inp%RTIME    = realtime
       inp%LDISH    = ldish
       inp%RUNDIR   = trim(rundir)
@@ -213,8 +226,8 @@ module fileio
       inp%NSAMPLE  = nsample
       inp%POTIM    = potim
       inp%LSPACE   = lspace
-      inp%NACBASIS  = nacbasis
-      inp%NELECTRON  = nelectron
+      inp%NACBASIS = nacbasis
+      inp%NELECTRON= nelectron
       inp%LCPTXT   = lcpext
       inp%TEMP     = temp
     end subroutine
