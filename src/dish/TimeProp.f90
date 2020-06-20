@@ -112,84 +112,84 @@ module TimeProp
   end subroutine
 
 
-  subroutine Propagation(ks, inp, tion)
-    implicit none
-    type(TDKS), intent(inout)  :: ks
-    type(namdInfo), intent(in) :: inp
-    integer, intent(in) :: tion
-
-    integer :: tele
-    integer :: i, j
-    real(kind=q) :: edt
-    real(kind=q) :: start, fin
-    complex(kind=q) ::ALPHA1,ALPHA2,BETA 
-    ALPHA1=imgUnit*edt/hbar*(-1.0_q)
-    ALPHA2=imgUnit*edt/hbar*(-2.0_q)
-    BETA=(1.0_q,0.0_q)
-        
-    edt = inp%POTIM / inp%NELM
-    ! write(*,*) inp%POTIM, inp%NELM, edt
-
-    ! the OUTER loop
-    !! do tion = 1, inp%NAMDTIME - 1
-    !! ks%pop_a(:,tion) = DCONJG(ks%psi_c) * ks%psi_c
-    !! ks%norm(tion) = SUM(ks%pop_a(:,tion))
-    !! ks%psi_a(:,tion) = ks%psi_c
-
-    ! check the norm of the state
-    ! write(*,*) tion, ks%norm(tion), ks%psi_c(:)
-    ! call cpu_time(start)
-    ! the INNER loop
-    ! do tele = 1, inp%NELM-1
-    call make_hamil(tion, ks, inp)
-    !write(98,'(*(E))') tion,real(conjg(ks%psi_c)*ks%psi_c),real(sum(conjg(ks%psi_c)*ks%psi_c))
-    do tele = 1, inp%NELM-1
-      ! construct hamiltonian matrix
-      ks%ham_c=ks%ham_c+ks%ham_dt
-      !call make_hamil(tion, tele, ks, inp,edt)
-      ! apply hamiltonian to state vector
-      !write(*,*) ks%ham_c    
-      !if (tion > 968) then
-      !    write(966,*) "psi_c",tion,ks%ham_c,"\n"
-      !end if
-        
-      call hamil_act(ks)
-      !call ZGEMV(TRANS, M, N, ALPHA, A, LDA, X,INCX, BETA, Y, INCY)
-      !call ZSYMV('N', inp%NBASIS, inp%NBASIS, ALPHA, A, LDA, X,INCX, BETA, Y, INCY)
-      if (tion == 1 .AND. tele == 1) then
-      ! write(*,*) ((ks%ham_c(i,j), j=1, ks%ndim), i=1, ks%ndim)
-      ! This is the very first step of the time propagation
-      ! use first order difference
-      ! [c,n,p] meas current, next, previous respectively
-      !ks%psi_n=ks%psi_c
-      !call ZGEMV('N', inp%NBASIS, inp%NBASIS, ALPHA1, ks%ham_c,inp%NBASIS, ks%psi_c,1, BETA, ks%psi_n, 1)
-        ks%psi_n = ks%psi_c - imgUnit * edt * ks%hpsi / hbar
-        else
-      ! use second order difference
-      !call ZGEMV('N', inp%NBASIS, inp%NBASIS, ALPHA2, ks%ham_c,inp%NBASIS, ks%psi_c,1, BETA, ks%psi_n, 1)
-        ks%psi_n = ks%psi_p - 2.0_q * imgUnit * edt * ks%hpsi / hbar
-      end if
-      !ks%pop_c(:) = DCONJG(ks%psi_c) * ks%psi_c
-      !ks%norm_c = SUM(ks%pop_c(:))
-      !ks%psi_p = ks%psi_c / SQRT(ks%norm_c)
-      !ks%pop_n(:) = CONJG(ks%psi_n) * ks%psi_n
-      !ks%norm_n = SUM(ks%pop_n(:))
-      !ks%psi_c = ks%psi_n / SQRT(ks%norm_n)
-      !if (tion > 968) then
-      !    write(968,*) "psi_c",tion,tele,ks%psi_c,"\n"
-      !    write(969,*) "hbar",ks%hpsi,"\n"
-      !end if
-      ks%psi_p = ks%psi_c
-      ks%psi_c = ks%psi_n
-      !write(92,*) "psi_c",tion,tele,ks%psi_c,"\n"
-    end do
-      !write(95,*) "psi_c",tion,tele,conjg(ks%psi_c)*ks%psi_c
-      ! end of the INNER loop
-      ! call cpu_time(fin)
-      ! write(*,*) "T_ion ", tion, fin - start
-
-    !! end do
-    ! end of the OUTER loop
-  end subroutine
+!!  subroutine Propagation(ks, inp, tion)
+!!    implicit none
+!!    type(TDKS), intent(inout)  :: ks
+!!    type(namdInfo), intent(in) :: inp
+!!    integer, intent(in) :: tion
+!!
+!!    integer :: tele
+!!    integer :: i, j
+!!    real(kind=q) :: edt
+!!    real(kind=q) :: start, fin
+!!    complex(kind=q) ::ALPHA1,ALPHA2,BETA 
+!!    ALPHA1=imgUnit*edt/hbar*(-1.0_q)
+!!    ALPHA2=imgUnit*edt/hbar*(-2.0_q)
+!!    BETA=(1.0_q,0.0_q)
+!!        
+!!    edt = inp%POTIM / inp%NELM
+!!    ! write(*,*) inp%POTIM, inp%NELM, edt
+!!
+!!    ! the OUTER loop
+!!    !! do tion = 1, inp%NAMDTIME - 1
+!!    !! ks%pop_a(:,tion) = DCONJG(ks%psi_c) * ks%psi_c
+!!    !! ks%norm(tion) = SUM(ks%pop_a(:,tion))
+!!    !! ks%psi_a(:,tion) = ks%psi_c
+!!
+!!    ! check the norm of the state
+!!    ! write(*,*) tion, ks%norm(tion), ks%psi_c(:)
+!!    ! call cpu_time(start)
+!!    ! the INNER loop
+!!    ! do tele = 1, inp%NELM-1
+!!    call make_hamil(tion, ks, inp)
+!!    !write(98,'(*(E))') tion,real(conjg(ks%psi_c)*ks%psi_c),real(sum(conjg(ks%psi_c)*ks%psi_c))
+!!    do tele = 1, inp%NELM-1
+!!      ! construct hamiltonian matrix
+!!      ks%ham_c=ks%ham_c+ks%ham_dt
+!!      !call make_hamil(tion, tele, ks, inp,edt)
+!!      ! apply hamiltonian to state vector
+!!      !write(*,*) ks%ham_c    
+!!      !if (tion > 968) then
+!!      !    write(966,*) "psi_c",tion,ks%ham_c,"\n"
+!!      !end if
+!!        
+!!      call hamil_act(ks)
+!!      !call ZGEMV(TRANS, M, N, ALPHA, A, LDA, X,INCX, BETA, Y, INCY)
+!!      !call ZSYMV('N', inp%NBASIS, inp%NBASIS, ALPHA, A, LDA, X,INCX, BETA, Y, INCY)
+!!      if (tion == 1 .AND. tele == 1) then
+!!      ! write(*,*) ((ks%ham_c(i,j), j=1, ks%ndim), i=1, ks%ndim)
+!!      ! This is the very first step of the time propagation
+!!      ! use first order difference
+!!      ! [c,n,p] meas current, next, previous respectively
+!!      !ks%psi_n=ks%psi_c
+!!      !call ZGEMV('N', inp%NBASIS, inp%NBASIS, ALPHA1, ks%ham_c,inp%NBASIS, ks%psi_c,1, BETA, ks%psi_n, 1)
+!!        ks%psi_n = ks%psi_c - imgUnit * edt * ks%hpsi / hbar
+!!        else
+!!      ! use second order difference
+!!      !call ZGEMV('N', inp%NBASIS, inp%NBASIS, ALPHA2, ks%ham_c,inp%NBASIS, ks%psi_c,1, BETA, ks%psi_n, 1)
+!!        ks%psi_n = ks%psi_p - 2.0_q * imgUnit * edt * ks%hpsi / hbar
+!!      end if
+!!      !ks%pop_c(:) = DCONJG(ks%psi_c) * ks%psi_c
+!!      !ks%norm_c = SUM(ks%pop_c(:))
+!!      !ks%psi_p = ks%psi_c / SQRT(ks%norm_c)
+!!      !ks%pop_n(:) = CONJG(ks%psi_n) * ks%psi_n
+!!      !ks%norm_n = SUM(ks%pop_n(:))
+!!      !ks%psi_c = ks%psi_n / SQRT(ks%norm_n)
+!!      !if (tion > 968) then
+!!      !    write(968,*) "psi_c",tion,tele,ks%psi_c,"\n"
+!!      !    write(969,*) "hbar",ks%hpsi,"\n"
+!!      !end if
+!!      ks%psi_p = ks%psi_c
+!!      ks%psi_c = ks%psi_n
+!!      !write(92,*) "psi_c",tion,tele,ks%psi_c,"\n"
+!!    end do
+!!      !write(95,*) "psi_c",tion,tele,conjg(ks%psi_c)*ks%psi_c
+!!      ! end of the INNER loop
+!!      ! call cpu_time(fin)
+!!      ! write(*,*) "T_ion ", tion, fin - start
+!!
+!!    !! end do
+!!    ! end of the OUTER loop
+!!  end subroutine
 
 end module

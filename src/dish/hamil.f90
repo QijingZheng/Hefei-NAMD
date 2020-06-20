@@ -9,18 +9,20 @@ module hamil
     integer :: ndim
     ! _[c,p,n] means current, previous, next
     complex(kind=q), allocatable, dimension(:) :: psi_c
-    complex(kind=q), allocatable, dimension(:) :: psi_p
-    complex(kind=q), allocatable, dimension(:) :: psi_n
+    !!!!Old Integration
+    !!!!complex(kind=q), allocatable, dimension(:) :: psi_p
+    !!!!complex(kind=q), allocatable, dimension(:) :: psi_n
     !! complex(kind=q), allocatable, dimension(:,:) :: psi_a
     ! the result of hamiltonian acting on a vector
     complex(kind=q), allocatable, dimension(:) :: hpsi
     ! population
     !! real(kind=q), allocatable, dimension(:,:) :: pop_a
-    real(kind=q) :: norm_c, norm_n
-    real(kind=q), allocatable, dimension(:) :: pop_c, pop_n
+    real(kind=q) :: norm_c
+    !!!!real(kind=q) :: norm_c, norm_n
+    !!!!real(kind=q), allocatable, dimension(:) :: pop_c, pop_n
 
     complex(kind=q), allocatable, dimension(:,:) :: ham_c
-    complex(kind=q), allocatable, dimension(:,:) :: ham_dt
+    !!!!complex(kind=q), allocatable, dimension(:,:) :: ham_dt
     ! complex(kind=q), allocatable, dimension(:,:) :: ham_p
     ! complex(kind=q), allocatable, dimension(:,:) :: ham_n
 
@@ -29,8 +31,8 @@ module hamil
     ! Non-adiabatic couplings
     complex(kind=q), allocatable, dimension(:,:,:) :: NAcoup
 
-    ! surface hopping related
-    ! Bkm = REAL(DCONJG(Akm) * Ckm)
+    !! surface hopping related
+    !! Bkm = REAL(DCONJG(Akm) * Ckm)
     !! real(kind=q), allocatable, dimension(:) :: Bkm
     !! real(kind=q), allocatable, dimension(:,:) :: sh_pops
     !! real(kind=q), allocatable, dimension(:,:) :: sh_prop
@@ -60,17 +62,17 @@ module hamil
 
     if (.NOT. ks%LALLO) then
       allocate(ks%psi_c(N))
-      allocate(ks%psi_p(N))
-      allocate(ks%psi_n(N))
+      !!!!allocate(ks%psi_p(N))
+      !!!!allocate(ks%psi_n(N))
       allocate(ks%hpsi(N))
       !! allocate(ks%psi_a(N, inp%NAMDTIME))
       !! allocate(ks%pop_a(N, inp%NAMDTIME))
       !! allocate(ks%norm(inp%NAMDTIME))
-      allocate(ks%pop_c(N))
-      allocate(ks%pop_n(N))
+      !!!!allocate(ks%pop_c(N))
+      !!!!allocate(ks%pop_n(N))
 
       allocate(ks%ham_c(N,N))
-      allocate(ks%ham_dt(N,N))
+      !!!!allocate(ks%ham_dt(N,N))
 
       !allocate(ks%eigKs(N, inp%NAMDTIME))
       allocate(ks%eigKs(N, inp%NSW-1))
@@ -82,19 +84,19 @@ module hamil
       !! allocate(ks%Bkm(N))
       allocate(ks%dish_pops(N, inp%RTIME))
       allocate(ks%recom_pops(N,inp%RTIME))
-      ! allocate(ks%ham_p(N,N))
-      ! allocate(ks%ham_n(N,N))
+      !!!! allocate(ks%ham_p(N,N))
+      !!!! allocate(ks%ham_n(N,N))
       ks%LALLO = .TRUE.
     end if
 
     ! cero = (0, 0)
     ! uno = (1, 0)
     ks%psi_c = cero
-    ks%psi_p = cero
-    ks%psi_n = cero
-    ! ks%ham_c = cero
-    ! ks%ham_p = cero
-    ! ks%ham_n = cero
+    !!!! ks%psi_p = cero
+    !!!! ks%psi_n = cero
+    !!!! ks%ham_c = cero
+    !!!! ks%ham_p = cero
+    !!!! ks%ham_n = cero
     ks%psi_c(inp%INIBAND - inp%BMIN + 1) = uno
 
     !Using RTIME HERE 
