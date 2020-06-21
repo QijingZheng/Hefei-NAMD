@@ -76,7 +76,7 @@ module hamil
       !!!!allocate(ks%ham_dt(N,N))
 
       !allocate(ks%eigKs(N, inp%NAMDTIME))
-      allocate(ks%eigKs(N, inp%NSW-1))
+      allocate(ks%eigKs(N, inp%NSW))
       !allocate(ks%NAcoup(N, N, inp%NAMDTIME))
       allocate(ks%NAcoup(N, N, inp%NSW-1))
 
@@ -127,9 +127,9 @@ module hamil
     XTIME = RTIME + 1
     if (RTIME == 0) then
       RTIME = inp%NSW-1
-      XTIME = 0
+      XTIME = inp%NSW 
     end if
-
+    !XTIME is only used for calculating the average energy now
 
     ! the hamiltonian contains two parts, which are obtained by interpolation
     ! method between two ionic tims step
@@ -146,7 +146,9 @@ module hamil
 
     ! the energy eigenvalue part
     do i=1, ks%ndim
-      ks%ham_c(i,i) = ks%eigKs(i,RTIME) 
+      !Hii(t+0.5dt)
+      ks%ham_c(i,i) = 0.5_q*(ks%eigKs(i,RTIME)+ks%eigKs(i,XTIME))
+      !ks%ham_c(i,i) = ks%eigKs(i,RTIME) 
       ! ks%ham_dt(i,i) =(ks%eigKs(i,XTIME) - ks%eigKs(i,TION))  / REAL(inp%NELM,q)
     end do
 
@@ -177,7 +179,9 @@ module hamil
     
     ! the energy eigenvalue part
     do i=1, ks%ndim
-      ks%ham_c(i,i) = ks%eigKs(i,TION)
+      !Hii(t+0.5dt)
+      ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,TION) + ks%eigKs(i,TION+1))
+      !ks%ham_c(i,i) = ks%eigKs(i,TION)
       !                     (ks%eigKs(i,TION+1) - ks%eigKs(i,TION)) * TELE / inp%NELM
     end do
   end subroutine

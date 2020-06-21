@@ -228,7 +228,7 @@ module couplings
     olap%TSTEPS = inp%NSW
     olap%dt = inp%POTIM
     allocate(olap%Dij(olap%NBANDS, olap%NBANDS, olap%TSTEPS-1))
-    allocate(olap%Eig(olap%NBANDS, olap%TSTEPS-1))
+    allocate(olap%Eig(olap%NBANDS, olap%TSTEPS))
 
     olap_sec%NBANDS = inp%NBASIS
     olap_sec%TSTEPS = inp%NSW
@@ -236,7 +236,7 @@ module couplings
     allocate(olap_sec%Dij(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
     allocate(olap_sec%DijR(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
     allocate(olap_sec%DijI(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
-    allocate(olap_sec%Eig(olap_sec%NBANDS, olap_sec%TSTEPS-1))
+    allocate(olap_sec%Eig(olap_sec%NBANDS, olap_sec%TSTEPS))
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     nsw = olap%TSTEPS
@@ -346,7 +346,7 @@ module couplings
     end if
 
     N = inp%NSW - 1
-    do j=1, N
+    do j=1, N + 1
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
@@ -383,7 +383,10 @@ module couplings
     end if
 
     N = inp%NSW - 1
-    do j=1, N
+    !len(NAC)=NSW Since NAC is at time t+0.5dt, while EIG is at time t
+    !So we use NSW-1 NAC and NSW EIG here, and calculate average EIG at t+0.5dt
+    !for Hii(t+0.5dt) in hamil.f90
+    do j=1, N + 1
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
@@ -413,7 +416,7 @@ module couplings
     olap_acbas%TSTEPS = inp%NSW
     olap_acbas%dt = inp%POTIM
     allocate(olap_acbas%Dij(olap_acbas%NBANDS, olap_acbas%NBANDS, olap_acbas%TSTEPS-1))
-    allocate(olap_acbas%Eig(olap_acbas%NBANDS, olap_acbas%TSTEPS-1))
+    allocate(olap_acbas%Eig(olap_acbas%NBANDS, olap_acbas%TSTEPS))
 
     olap_acbas%Eig=0.0_q
     open(unit=25, file='ACEIGTXT', status='unknown', action='write', iostat=ierr)
