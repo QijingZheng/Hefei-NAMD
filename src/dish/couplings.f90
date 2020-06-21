@@ -402,6 +402,8 @@ module couplings
     close(unit=22)
     close(unit=42)
     close(unit=43)
+
+    deallocate(olap_sec%DijR,olap_sec%DijI)
   end subroutine
 
   subroutine initspace(olap_sec, inp)
