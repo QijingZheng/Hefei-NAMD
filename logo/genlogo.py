@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import sys, argparse
+import sys
+import argparse
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -36,9 +37,9 @@ def get_molecule_positions(theta=0, shrink=0.25):
 def generate_logo(animateLogo=False,
                   animateInterval=200,
                   saveLogo=None,
-                  showLogo=True, 
-                  dpi=300
-                  ):
+                  showLogo=True,
+                  dpi=300,
+                  namd_start_angle=60.0):
     '''
     Generate the Hefei-NAMD logo.
     '''
@@ -130,7 +131,7 @@ def generate_logo(animateLogo=False,
                 tmp += [c1, c2, c3]
             namd_rot.append(tmp)
     else:
-        start_angle = 60. / 180. * np.pi
+        start_angle = namd_start_angle / 180. * np.pi
         for ii in range(4):
             tc = np.exp(1j * (start_angle + ii * np.pi / 2))
             c1 = Circle(
@@ -208,7 +209,7 @@ def generate_logo(animateLogo=False,
         ax.add_patch(cc)
 
     ax.set_xlim(-1.5, 1.5)
-    ax.set_ylim(-2.6, 1.4)
+    ax.set_ylim(-2.55, 1.4)
 
     plt.tight_layout(pad=0.1)
 
@@ -216,9 +217,9 @@ def generate_logo(animateLogo=False,
         ani = animation.ArtistAnimation(figure, namd_rot, interval=200, blit=True,
                                         repeat_delay=0)
 
-        movieWrite = animation.ImageMagickFileWriter()
-        movieWrite.setup(fig=figure, outfile=saveLogo, dpi=300)
-        ani.save(saveLogo, writer=movieWrite)
+        movieWrite = animation.ImageMagickFileWriter(fps=12)
+        movieWrite.setup(fig=figure, outfile=saveLogo)
+        ani.save(saveLogo, writer=movieWrite, dpi=120)
     else:
         plt.savefig(saveLogo, dpi=dpi)
 
@@ -239,8 +240,11 @@ def parse_cml_args(cml):
                      default='png',
                      help='Output Logo image format')
     arg.add_argument('--dpi', dest='dpi', action='store', type=int,
-                     default=300,
+                     default=-1,
                      help='Output Logo image dpi')
+    arg.add_argument('--start_angle', dest='start_angle', action='store',
+                     type=float, default=60.,
+                     help='Start angle of the "N" in "NAMD" TEXT')
     arg.add_argument('--animate', dest='animate', action='store_true',
                      help='Whether to generate animated logo or not')
     arg.add_argument('--interval', dest='interval', action='store', type=int,
@@ -260,9 +264,12 @@ def main(cml):
     else:
         outFile = '{}.{}'.format(p.outPrefix, p.outFormat)
 
+    if p.dpi == -1:
+        p.dpi = 120 if p.animate else 300
+
     generate_logo(p.animate, p.interval,
                   outFile, p.show_logo,
-                  p.dpi)
+                  p.dpi, p.start_angle)
 
 
 if __name__ == "__main__":
