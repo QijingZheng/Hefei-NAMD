@@ -100,7 +100,8 @@ module hamil
     !!!! ks%ham_n = cero
     ks%psi_c(inp%INIBAND - inp%BMIN + 1) = uno
 
-    !Using RTIME HERE 
+    !Using RTIME in NAC loading
+ 
     !    do i=1, inp%NAMDTIME
     ! We don't need all the information, only a section of it
     !    ks%eigKs(:,i) = olap%Eig(:, inp%NAMDTINI + i - 1)
@@ -109,21 +110,23 @@ module hamil
     !   ks%NAcoup(:,:,i) = olap%Dij(:,:, inp%NAMDTINI + i - 1) / (2*inp%POTIM)
     !   end do
     !write(500,*) "eig",olap%Eig
+    
+    !In DISH, to replicate NAC, we load all NACs.
     ks%eigKs = olap%Eig
     ks%NAcoup = olap%Dij / (2*inp%POTIM)
   end subroutine
 
   ! constructing the hamiltonian by replicating NAC
-  subroutine make_hamil_rtime(TION, ks, inp)
+  subroutine make_hamil_rtime(tion, ks, inp)
     implicit none
 
     type(TDKS), intent(inout) :: ks
     type(namdInfo), intent(in) :: inp
-    integer, intent(in) :: TION
+    integer, intent(in) :: tion
     !real(kind=q) :: dt
     integer :: RTIME,XTIME
     integer :: i
-    RTIME = MOD(TION+inp%NAMDTINI-1,inp%NSW-1)
+    RTIME = MOD(tion+inp%NAMDTINI-1,inp%NSW-1)
     XTIME = RTIME + 1
     if (RTIME == 0) then
       RTIME = inp%NSW-1
@@ -149,21 +152,21 @@ module hamil
       !Hii(t+0.5dt)
       ks%ham_c(i,i) = 0.5_q*(ks%eigKs(i,RTIME)+ks%eigKs(i,XTIME))
       !ks%ham_c(i,i) = ks%eigKs(i,RTIME) 
-      ! ks%ham_dt(i,i) =(ks%eigKs(i,XTIME) - ks%eigKs(i,TION))  / REAL(inp%NELM,q)
+      ! ks%ham_dt(i,i) =(ks%eigKs(i,XTIME) - ks%eigKs(i,tion))  / REAL(inp%NELM,q)
     end do
 
-    !if(TION> 967) then
-    !    write(967,*) "eig",ks%eigKs(i,TION)
+    !if(tion> 967) then
+    !    write(967,*) "eig",ks%eigKs(i,tion)
     !end if
   end subroutine
 
   ! constructing the hamiltonian
-  subroutine make_hamil(TION,  ks, inp)
+  subroutine make_hamil(tion,  ks, inp)
     implicit none
 
     type(TDKS), intent(inout) :: ks
     type(namdInfo), intent(in) :: inp
-    integer, intent(in) :: TION
+    integer, intent(in) :: tion
 
     integer :: i
 
@@ -171,8 +174,8 @@ module hamil
     ! method between two ionic tims step
 
     ! The non-adiabatic coupling part
-    ks%ham_c(:,:) = ks%NAcoup(:,:,TION)
-    !               (ks%NAcoup(:,:,TION+1) - ks%NAcoup(:,:,TION)) * TELE / inp%NELM
+    ks%ham_c(:,:) = ks%NAcoup(:,:,tion)
+    !               (ks%NAcoup(:,:,tion+1) - ks%NAcoup(:,:,tion)) * TELE / inp%NELM
 
     ! multiply by -i * hbar
     ks%ham_c = -imgUnit * hbar * ks%ham_c 
@@ -180,9 +183,9 @@ module hamil
     ! the energy eigenvalue part
     do i=1, ks%ndim
       !Hii(t+0.5dt)
-      ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,TION) + ks%eigKs(i,TION+1))
-      !ks%ham_c(i,i) = ks%eigKs(i,TION)
-      !                     (ks%eigKs(i,TION+1) - ks%eigKs(i,TION)) * TELE / inp%NELM
+      ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,tion) + ks%eigKs(i,tion+1))
+      !ks%ham_c(i,i) = ks%eigKs(i,tion)
+      !                     (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * TELE / inp%NELM
     end do
   end subroutine
 

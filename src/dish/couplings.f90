@@ -421,7 +421,7 @@ module couplings
     allocate(olap_acbas%Eig(olap_acbas%NBANDS, olap_acbas%TSTEPS))
 
     olap_acbas%Eig=0.0_q
-    open(unit=25, file='ACEIGTXT', status='unknown', action='write', iostat=ierr)
+    open(unit=35, file='ACEIGTXT', status='unknown', action='write', iostat=ierr)
 
     do N=1,inp%NSW-1
       do i=1,inp%NACBASIS
@@ -429,7 +429,7 @@ module couplings
           olap_acbas%Eig(i,N)=olap_acbas%Eig(i,N)+olap_sec%Eig(inp%ACBASIS(i,j),N)
         end do
       end do
-      write(unit=25,fmt=*) olap_acbas%Eig(:,N)
+      write(unit=35,fmt=*) olap_acbas%Eig(:,N)
     end do
   end subroutine
 
