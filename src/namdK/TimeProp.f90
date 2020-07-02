@@ -83,9 +83,16 @@ module TimeProp
     integer :: i,j,tele
     real(kind=q) :: edt
 
-    call make_hamil_rtime(tion, ks, inp)
+    call make_hamil(tion, ks, inp)
+    ks%pop_a(:,tion) = CONJG(ks%psi_c) * ks%psi_c
+    ks%norm(tion) = SUM(ks%pop_a(:,tion))
+    ks%psi_a(:,tion) = ks%psi_c
+
+    ks%pop_a(:,tion) = ks%pop_a(:,tion)/ks%norm(tion) 
+
     !Debug only
     !write(98,'(*(E))') tion,real(dconjg(ks%psi_c)*ks%psi_c),real(sum(dconjg(ks%psi_c)*ks%psi_c))
+    
     
     edt = inp%POTIM / inp%NELM
     do tele = 1, inp%NELM

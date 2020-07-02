@@ -12,12 +12,12 @@ module hamil
     !!!!Old Integration
     !!!!complex(kind=q), allocatable, dimension(:) :: psi_p
     !!!!complex(kind=q), allocatable, dimension(:) :: psi_n
-    !! complex(kind=q), allocatable, dimension(:,:) :: psi_a
-    !! real(kind=q), allocatable, dimension(:) :: norm
+    complex(kind=q), allocatable, dimension(:,:) :: psi_a
     ! the result of hamiltonian acting on a vector
     complex(kind=q), allocatable, dimension(:) :: hpsi
     ! population
-    !! real(kind=q), allocatable, dimension(:,:) :: pop_a
+    real(kind=q), allocatable, dimension(:,:) :: pop_a
+    real(kind=q), allocatable, dimension(:) :: norm 
     real(kind=q) :: norm_c
     !!!!real(kind=q) :: norm_c, norm_n
     !!!!real(kind=q), allocatable, dimension(:) :: pop_c, pop_n
@@ -34,13 +34,13 @@ module hamil
 
     !! surface hopping related
     !! Bkm = REAL(DCONJG(Akm) * Ckm)
-    !! real(kind=q), allocatable, dimension(:) :: Bkm
-    !! real(kind=q), allocatable, dimension(:,:) :: sh_pops
-    !! real(kind=q), allocatable, dimension(:,:) :: sh_prop
+    real(kind=q), allocatable, dimension(:) :: Bkm
+    real(kind=q), allocatable, dimension(:,:) :: sh_pops
+    real(kind=q), allocatable, dimension(:,:) :: sh_prop
 
     !! decoherence induced surface hopping
-    real(kind=q), allocatable, dimension(:,:) :: dish_pops
-    real(kind=q), allocatable, dimension(:,:) :: recom_pops
+    !!real(kind=q), allocatable, dimension(:,:) :: dish_pops
+    !!real(kind=q), allocatable, dimension(:,:) :: recom_pops
     ! whether the memory has been allocated
     logical :: LALLO = .FALSE.
 
@@ -66,9 +66,9 @@ module hamil
       !!!!allocate(ks%psi_p(N))
       !!!!allocate(ks%psi_n(N))
       allocate(ks%hpsi(N))
-      !! allocate(ks%psi_a(N, inp%NAMDTIME))
-      !! allocate(ks%pop_a(N, inp%NAMDTIME))
-      !! allocate(ks%norm(inp%NAMDTIME))
+      allocate(ks%psi_a(N, inp%NAMDTIME))
+      allocate(ks%pop_a(N, inp%NAMDTIME))
+      allocate(ks%norm(inp%NAMDTIME))
       !!!!allocate(ks%pop_c(N))
       !!!!allocate(ks%pop_n(N))
 
@@ -80,11 +80,11 @@ module hamil
       !allocate(ks%NAcoup(N, N, inp%NAMDTIME))
       allocate(ks%NAcoup(N, N, inp%NSW-1))
 
-      !! allocate(ks%sh_pops(N, inp%NAMDTIME))
-      !! allocate(ks%sh_prop(N, inp%NAMDTIME))
-      !! allocate(ks%Bkm(N))
-      allocate(ks%dish_pops(N, inp%RTIME))
-      allocate(ks%recom_pops(N,inp%RTIME))
+      allocate(ks%sh_pops(N, inp%NAMDTIME))
+      allocate(ks%sh_prop(N, inp%NAMDTIME))
+      allocate(ks%Bkm(N))
+      !!allocate(ks%dish_pops(N, inp%RTIME))
+      !!allocate(ks%recom_pops(N,inp%RTIME))
       !!!! allocate(ks%ham_p(N,N))
       !!!! allocate(ks%ham_n(N,N))
       ks%LALLO = .TRUE.
@@ -100,20 +100,20 @@ module hamil
     !!!! ks%ham_n = cero
     ks%psi_c(inp%INIBAND - inp%BMIN + 1) = uno
 
-    !Using RTIME in NAC loading
+    !Using NAMDTIME in NAC loading
  
-    !    do i=1, inp%NAMDTIME
+    do i=1, inp%NAMDTIME
     ! We don't need all the information, only a section of it
-    !    ks%eigKs(:,i) = olap%Eig(:, inp%NAMDTINI + i - 1)
+       ks%eigKs(:,i) = olap%Eig(:, inp%NAMDTINI + i - 1)
     ! Divide by 2 * POTIM here, because we didn't do this in the calculation
     ! of couplings
-    !   ks%NAcoup(:,:,i) = olap%Dij(:,:, inp%NAMDTINI + i - 1) / (2*inp%POTIM)
-    !   end do
+       ks%NAcoup(:,:,i) = olap%Dij(:,:, inp%NAMDTINI + i - 1) / (2*inp%POTIM)
+    end do
     !write(500,*) "eig",olap%Eig
-    
+
     !In DISH, to replicate NAC, we load all NACs.
-    ks%eigKs = olap%Eig
-    ks%NAcoup = olap%Dij / (2*inp%POTIM)
+    !ks%eigKs = olap%Eig
+    !ks%NAcoup = olap%Dij / (2*inp%POTIM)
   end subroutine
 
   ! constructing the hamiltonian by replicating NAC

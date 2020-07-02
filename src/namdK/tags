@@ -1,0 +1,171 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+A	lattice.f90	/^    real(q) :: A(/;"	k	type:latt
+ACBASIS	fileio.f90	/^    integer, allocatable, dimension(:,:) :: ACBASIS /;"	k	type:namdInfo
+AMTOKG	prec.f90	/^  real(q), parameter :: EVTOJ=1.60217733E-19_q, AMTOKG=/;"	v	module:constants
+ANORM	lattice.f90	/^    real(q) :: ANORM(/;"	k	type:latt
+AUTDEBYE	prec.f90	/^  real(q), parameter :: AUTDEBYE=/;"	v	module:constants
+AUTOA	prec.f90	/^  real(q), parameter :: AUTOA=/;"	v	module:constants
+AUTOA2	prec.f90	/^  real(q), parameter :: AUTOA2=/;"	v	module:constants
+AUTOA3	prec.f90	/^  real(q), parameter :: AUTOA3=/;"	v	module:constants
+AUTOA4	prec.f90	/^  real(q), parameter :: AUTOA4=/;"	v	module:constants
+AUTOA5	prec.f90	/^  real(q), parameter :: AUTOA5=/;"	v	module:constants
+B	lattice.f90	/^    real(q) :: A(3,3),B(/;"	k	type:latt
+BANDS	wave.f90	/^    real(kind=q), allocatable, dimension(:,:,:) :: BANDS$/;"	k	type:waveinfo
+BMAX	fileio.f90	/^    integer :: BMAX$/;"	k	type:namdInfo
+BMIN	fileio.f90	/^    integer :: BMIN$/;"	k	type:namdInfo
+BNORM	lattice.f90	/^    real(q) :: ANORM(3),BNORM(/;"	k	type:latt
+BOLK	prec.f90	/^                        BOLKE/;"	v	module:constants
+BOLKEV	prec.f90	/^  real(q), parameter :: EVTOJ=1.60217733E-19_q, AMTOKG=1.6605402E-27_q, &$/;"	v	module:constants
+Bkm	hamil.f90	/^    real(kind=q), allocatable, dimension(:) :: Bkm$/;"	k	type:TDKS
+CITPI	prec.f90	/^  complex(q), parameter  :: CITPI /;"	v	module:constants
+CLIGHT	prec.f90	/^  real(q), parameter :: CLIGHT /;"	v	module:constants
+CoupFromFile	couplings.f90	/^  subroutine CoupFromFile(/;"	s	module:couplings
+CoupIJ	couplings.f90	/^  subroutine CoupIJ(/;"	s	module:couplings
+CoupToFile	couplings.f90	/^  subroutine CoupToFile(/;"	s	module:couplings
+DEPHMATR	fileio.f90	/^    real(kind=q), allocatable, dimension(:,:) :: DEPHMATR /;"	k	type:namdInfo
+DIINIT	fileio.f90	/^    character(len=256) :: DIINIT /;"	k	type:namdInfo
+Dij	couplings.f90	/^    complex(kind=q), allocatable, dimension(:,:,:) :: Dij$/;"	k	type:overlap
+DijI	couplings.f90	/^    complex(kind=q), allocatable, dimension(:,:,:) :: DijI$/;"	k	type:overlap
+DijR	couplings.f90	/^    complex(kind=q), allocatable, dimension(:,:,:) :: DijR$/;"	k	type:overlap
+EDEPS	prec.f90	/^  real(q), parameter  :: FELECT = 2*AUTOA*RYTOEV, EDEPS=/;"	v	module:constants
+ENCUT	wave.f90	/^    real(kind=q) :: ENCUT$/;"	k	type:waveinfo
+EVTOJ	prec.f90	/^  real(q), parameter :: EVTOJ=/;"	v	module:constants
+EVTOKCAL	prec.f90	/^  real(q), parameter :: EVTOKCAL=/;"	v	module:constants
+EXE	Makefile	/^EXE = namdk$/;"	m
+EXPRO	lattice.f90	/^    subroutine EXPRO(/;"	s	module:lattice
+Eig	couplings.f90	/^    real(kind=q), allocatable, dimension(:,:) :: Eig$/;"	k	type:overlap
+FC	Makefile	/^FC= ifort -assume byterecl$/;"	m
+FELECT	prec.f90	/^  real(q), parameter  :: FELECT /;"	v	module:constants
+FFLAGS	Makefile	/^FFLAGS= -g -O2  -check bounds -g -traceback$/;"	m
+HSQDTM	prec.f90	/^  real(q), parameter  :: FELECT = 2*AUTOA*RYTOEV, EDEPS=4*PI*2*RYTOEV*AUTOA, &$/;"	v	module:constants
+INIBAND	fileio.f90	/^    integer :: INIBAND /;"	k	type:namdInfo
+INIBAND_A	fileio.f90	/^    integer, allocatable, dimension(:) :: INIBAND_A /;"	k	type:namdInfo
+ISPIN	wave.f90	/^    integer :: ISPIN$/;"	k	type:waveinfo
+IU	wave.f90	/^    integer :: IU$/;"	k	type:waveinfo
+LALLO	hamil.f90	/^    logical :: LALLO /;"	k	type:TDKS
+LCPTXT	fileio.f90	/^    logical :: LCPTXT$/;"	k	type:namdInfo
+LDISH	fileio.f90	/^    logical :: LDISH /;"	k	type:namdInfo
+LHOLE	fileio.f90	/^    logical :: LHOLE$/;"	k	type:namdInfo
+LOADWAVE	wave.f90	/^    subroutine LOADWAVE(/;"	s	module:wavecar
+LSHP	fileio.f90	/^    logical :: LSHP$/;"	k	type:namdInfo
+LSPACE	fileio.f90	/^    logical :: LSPACE$/;"	k	type:namdInfo
+MAGMOMTOENERGY	prec.f90	/^  real(q), parameter :: MAGMOMTOENERGY=/;"	v	module:constants
+MAKE	Makefile	/^MAKE = make$/;"	m
+MAXPLWS	wave.f90	/^    integer :: MAXPLWS$/;"	k	type:waveinfo
+MOMTOMOM	prec.f90	/^  real(q), parameter :: MOMTOMOM=/;"	v	module:constants
+MyLatt	wave.f90	/^    type(latt) :: MyLatt$/;"	k	type:waveinfo
+NACBASIS	fileio.f90	/^    integer :: NACBASIS$/;"	k	type:namdInfo
+NAMDPARA	fileio.f90	/^      namelist \/NAMDPARA\//;"	n	subroutine:getUserInp
+NAMDTIME	fileio.f90	/^    integer :: NAMDTIME /;"	k	type:namdInfo
+NAMDTINI	fileio.f90	/^    integer :: NAMDTINI /;"	k	type:namdInfo
+NAMDTINI_A	fileio.f90	/^    integer, allocatable, dimension(:) :: NAMDTINI_A /;"	k	type:namdInfo
+NAcoup	hamil.f90	/^    complex(kind=q), allocatable, dimension(:,:,:) :: NAcoup$/;"	k	type:TDKS
+NBANDS	couplings.f90	/^    integer :: NBANDS$/;"	k	type:overlap
+NBANDS	fileio.f90	/^    integer :: NBANDS /;"	k	type:namdInfo
+NBANDS	wave.f90	/^    integer :: NBANDS$/;"	k	type:waveinfo
+NBASIS	fileio.f90	/^    integer :: NBASIS /;"	k	type:namdInfo
+NELECTRON	fileio.f90	/^    integer :: NELECTRON$/;"	k	type:namdInfo
+NELM	fileio.f90	/^    integer :: NELM /;"	k	type:namdInfo
+NKPTS	wave.f90	/^    integer :: NKPTS$/;"	k	type:waveinfo
+NPLWS	wave.f90	/^    integer, allocatable, dimension(:) :: NPLWS$/;"	k	type:waveinfo
+NSAMPLE	fileio.f90	/^    integer :: NSAMPLE /;"	k	type:namdInfo
+NSW	fileio.f90	/^    integer :: NSW /;"	k	type:namdInfo
+NTRAJ	fileio.f90	/^    integer :: NTRAJ /;"	k	type:namdInfo
+OBJ	Makefile	/^OBJ = $(SRC:.f90=.o)$/;"	m
+OMEGA	lattice.f90	/^    real(q) :: OMEGA$/;"	k	type:latt
+PI	prec.f90	/^  real(q), parameter  :: PI /;"	v	module:constants
+POTIM	fileio.f90	/^    real(kind=q) :: POTIM /;"	k	type:namdInfo
+Phase	TimeProp.f90	/^  subroutine Phase(/;"	s	module:TimeProp
+PropagationT	TimeProp.f90	/^  subroutine PropagationT(/;"	s	module:TimeProp
+RTIME	fileio.f90	/^    integer :: RTIME /;"	k	type:namdInfo
+RUNDIR	fileio.f90	/^    character(len=256) :: RUNDIR$/;"	k	type:namdInfo
+RYTOEV	prec.f90	/^  real(q), parameter :: AUTOA=0.529177249_q, RYTOEV=/;"	v	module:constants
+SCALE	lattice.f90	/^    real(q) :: SCALE$/;"	k	type:latt
+SRC	Makefile	/^SRC = prec.f90 lattice.f90 wave.f90 fileio.f90 couplings.f90 hamil.f90 \\$/;"	m
+TBINIT	fileio.f90	/^    character(len=256) :: TBINIT$/;"	k	type:namdInfo
+TDCoupIJ	couplings.f90	/^  subroutine TDCoupIJ(/;"	s	module:couplings
+TDKS	hamil.f90	/^  type TDKS$/;"	t	module:hamil
+TEMP	fileio.f90	/^    real(kind=q) :: TEMP /;"	k	type:namdInfo
+TION	main.f90	/^  integer :: ns,cr,cm,TION$/;"	v	program:main
+TPI	prec.f90	/^  real(q), parameter  :: PI =3.141592653589793238_q, TPI=/;"	v	module:constants
+TSTEPS	couplings.f90	/^    integer :: TSTEPS$/;"	k	type:overlap
+TimeProp	TimeProp.f90	/^module TimeProp$/;"	m
+VKPTS	wave.f90	/^    real(kind=q), allocatable, dimension(:,:) :: VKPTS$/;"	k	type:waveinfo
+WAVECAR	wave.f90	/^    character(len=255) :: WAVECAR$/;"	k	type:waveinfo
+calcprop	SurfHop.f90	/^  subroutine calcprop(/;"	s	module:shop
+cero	prec.f90	/^  complex(q), parameter :: cero /;"	v	module:constants
+closewav	wave.f90	/^    subroutine closewav(/;"	s	module:wavecar
+cm	main.f90	/^  integer :: ns,cr,cm,/;"	v	program:main
+constants	prec.f90	/^module constants$/;"	m
+couplings	couplings.f90	/^module couplings$/;"	m
+cr	main.f90	/^  integer :: ns,cr,/;"	v	program:main
+dt	couplings.f90	/^    real(kind=q) :: dt$/;"	k	type:overlap
+eigKs	hamil.f90	/^    real(kind=q), allocatable, dimension(:,:) :: eigKs$/;"	k	type:TDKS
+fileio	fileio.f90	/^module fileio$/;"	m
+fin	main.f90	/^  real(kind=q) :: start, fin$/;"	v	program:main
+finishAB	couplings.f90	/^  subroutine finishAB(/;"	s	module:couplings
+freemem	wave.f90	/^    subroutine freemem(/;"	s	module:wavecar
+getUserInp	fileio.f90	/^    subroutine getUserInp(/;"	s	module:fileio
+ham_c	hamil.f90	/^    complex(kind=q), allocatable, dimension(:,:) :: ham_c$/;"	k	type:TDKS
+hamil	hamil.f90	/^module hamil$/;"	m
+hamil_act	hamil.f90	/^  subroutine hamil_act(/;"	s	module:hamil
+hbar	prec.f90	/^  complex(q), parameter :: hbar /;"	v	module:constants
+hpsi	hamil.f90	/^    complex(kind=q), allocatable, dimension(:) :: hpsi$/;"	k	type:TDKS
+iband	wave.f90	/^    integer :: iband$/;"	k	type:psi
+ikpts	wave.f90	/^    integer :: ikpts$/;"	k	type:psi
+imgUnit	prec.f90	/^  complex(q), parameter :: imgUnit /;"	v	module:constants
+initAB	couplings.f90	/^  subroutine initAB(/;"	s	module:couplings
+initTDKS	hamil.f90	/^  subroutine initTDKS(/;"	s	module:hamil
+init_random_seed	SurfHop.f90	/^  subroutine init_random_seed(/;"	s	module:shop
+initspace	couplings.f90	/^  subroutine initspace(/;"	s	module:couplings
+inp	main.f90	/^  type(namdInfo) :: inp$/;"	v	program:main
+ispin	wave.f90	/^    integer :: ispin$/;"	k	type:psi
+ks	main.f90	/^  type(TDKS) :: ks$/;"	v	program:main
+latt	lattice.f90	/^  type latt$/;"	t	module:lattice
+lattic	lattice.f90	/^    subroutine lattic(/;"	s	module:lattice
+lattice	lattice.f90	/^module lattice$/;"	m
+main	main.f90	/^Program main$/;"	p
+make_hamil	hamil.f90	/^  subroutine make_hamil(/;"	s	module:hamil
+make_hamil_rtime	hamil.f90	/^  subroutine make_hamil_rtime(/;"	s	module:hamil
+namdInfo	fileio.f90	/^  type namdInfo$/;"	t	module:fileio
+ndim	hamil.f90	/^    integer :: ndim$/;"	k	type:TDKS
+norm	hamil.f90	/^    real(kind=q), allocatable, dimension(:) :: norm /;"	k	type:TDKS
+norm_c	hamil.f90	/^    real(kind=q) :: norm_c$/;"	k	type:TDKS
+ns	main.f90	/^  integer :: ns,/;"	v	program:main
+olap	main.f90	/^  type(overlap) :: olap,/;"	v	program:main
+olap_sec	main.f90	/^  type(overlap) :: olap, olap_sec$/;"	v	program:main
+openwav	wave.f90	/^    subroutine openwav(/;"	s	module:wavecar
+overlap	couplings.f90	/^  type overlap$/;"	t	module:couplings
+pop_a	hamil.f90	/^    real(kind=q), allocatable, dimension(:,:) :: pop_a$/;"	k	type:TDKS
+prec	prec.f90	/^module prec$/;"	m
+printSH	SurfHop.f90	/^  subroutine printSH(/;"	s	module:shop
+printUserInp	fileio.f90	/^    subroutine printUserInp(/;"	s	module:fileio
+psi	wave.f90	/^  type psi$/;"	t	module:wavecar
+psi_a	hamil.f90	/^    complex(kind=q), allocatable, dimension(:,:) :: psi_a$/;"	k	type:TDKS
+psi_c	hamil.f90	/^    complex(kind=q), allocatable, dimension(:) :: psi_c$/;"	k	type:TDKS
+q	prec.f90	/^  integer, parameter :: q /;"	v	module:prec
+qs	prec.f90	/^  integer, parameter :: qs=/;"	v	module:prec
+qw	wave.f90	/^    integer :: qw /;"	k	type:waveinfo
+readNaEig	couplings.f90	/^  subroutine readNaEig(/;"	s	module:couplings
+readNaEigCpx	couplings.f90	/^  subroutine readNaEigCpx(/;"	s	module:couplings
+rewindwav	wave.f90	/^    subroutine rewindwav(/;"	s	module:wavecar
+rot	TimeProp.f90	/^  subroutine rot(/;"	s	module:TimeProp
+rot1	TimeProp.f90	/^  subroutine rot1(/;"	s	module:TimeProp
+rot2	TimeProp.f90	/^  subroutine rot2(/;"	s	module:TimeProp
+runSH	SurfHop.f90	/^  subroutine runSH(/;"	s	module:shop
+setKet	wave.f90	/^    subroutine setKet(/;"	s	module:wavecar
+sh_pops	hamil.f90	/^    real(kind=q), allocatable, dimension(:,:) :: sh_pops$/;"	k	type:TDKS
+sh_prop	hamil.f90	/^    real(kind=q), allocatable, dimension(:,:) :: sh_prop$/;"	k	type:TDKS
+shop	SurfHop.f90	/^module shop$/;"	m
+start	main.f90	/^  real(kind=q) :: start,/;"	v	program:main
+sysinfo	wave.f90	/^    subroutine sysinfo(/;"	s	module:wavecar
+uno	prec.f90	/^  complex(q), parameter :: uno /;"	v	module:constants
+wavecar	wave.f90	/^module wavecar$/;"	m
+waveinfo	wave.f90	/^  type waveinfo$/;"	t	module:wavecar
+whichToHop	SurfHop.f90	/^  subroutine whichToHop(/;"	s	module:shop
+writeNaEig	couplings.f90	/^  subroutine writeNaEig(/;"	s	module:couplings

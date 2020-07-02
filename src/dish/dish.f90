@@ -119,12 +119,14 @@ module dish
     !end if
     if (inp%LHOLE) then
       if (cstat > which) then
-        dE = ks%eigKs(cstat,RTIME) - ks%eigKs(which, RTIME)
+        dE = ((ks%eigKs(cstat,RTIME) + ks%eigKs(cstat,RTIME+1)) - &
+              (ks%eigKs(which,RTIME) + ks%eigKs(which, RTIME+1))) /2.0_q
         popBoltz(which) = popBoltz(which) * exp(-dE / kbT)
       end if
     else
       if (cstat < which) then
-        dE = ks%eigKs(which,RTIME) - ks%eigKs(cstat, RTIME)
+        dE = ((ks%eigKs(which,RTIME) + ks%eigKs(which,RTIME+1)) - &
+              (ks%eigKs(cstat,RTIME) + ks%eigKs(cstat, RTIME+1))) /2.0_q
         popBoltz(which) = popBoltz(which) * exp(-dE / kbT)
       end if
     end if

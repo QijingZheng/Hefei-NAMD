@@ -12,7 +12,7 @@ module fileio
     integer :: NSW         ! No. of MD steps
     integer :: NAMDTINI    ! Initial time step of NAMD
     integer :: NAMDTIME    ! No. of steps of NAMD
-    integer :: RTIME    ! No. of steps of NAMD
+    integer :: RTIME    ! No. of steps of NAMD It is not recommended to replicate NAC in FSSH
     integer, allocatable, dimension(:) :: NAMDTINI_A    ! No. of steps of NAMD
     integer, allocatable, dimension(:) :: INIBAND_A     ! No. of steps of NAMD
 
@@ -81,8 +81,8 @@ module fileio
                                    nbands,    &
                           potim, ntraj, nelm, &
                           temp, rundir,       &
-                          !! lhole, lshp, lcpext,&
-                          lhole, ldish, lcpext,&
+                          !! lhole, ldish, lcpext,&
+                          lhole, lshp, lcpext,&
     !!                      lspace,nacbasis,nelectron,     &   !!
                           namdtime,realtime,    &
                           !! nsample, tbinit
@@ -103,11 +103,11 @@ module fileio
       ntraj = 1000
       nelm = 10
       lhole = .FALSE.
-      lshp = .FALSE.
-      ldish = .TRUE.
+      lshp = .TRUE.
+      ldish = .FALSE.
       ! namdtini = 1
       namdtime = 200
-      realtime = 200
+      realtime = 2
       potim = 1.0_q
       temp = 300_q
       lcpext = .FALSE.
@@ -160,7 +160,7 @@ module fileio
           close(10)
         end if
       end if
-
+  
       if (lspace) then
         allocate(inp%ACBASIS(nacbasis, nelectron))
         inquire(file=spinit, exist=lext)
@@ -249,13 +249,13 @@ module fileio
 
       write(*,'(A30,A3,I8)') 'NAMDTINI', ' = ', inp%NAMDTINI
       write(*,'(A30,A3,I8)') 'NAMDTIME', ' = ', inp%NAMDTIME
-      write(*,'(A30,A3,I8)') 'NAMDRTIME', ' = ', inp%RTIME
+      !!write(*,'(A30,A3,I8)') 'NAMDRTIME', ' = ', inp%RTIME
       write(*,'(A30,A3,I8)') 'NTRAJ',    ' = ', inp%NTRAJ
       write(*,'(A30,A3,I8)') 'NELM',     ' = ', inp%NELM
 
       write(*,'(A30,A3,L8)') 'LHOLE',    ' = ', inp%LHOLE
-      !! write(*,'(A30,A3,L5)') 'LSHP',     ' = ', inp%LSHP
-      write(*,'(A30,A3,L8)') 'LDISH',    ' = ', inp%LDISH
+      write(*,'(A30,A3,L8)') 'LSHP',     ' = ', inp%LSHP
+      !!write(*,'(A30,A3,L8)') 'LDISH',    ' = ', inp%LDISH
       write(*,'(A30,A3,L8)') 'LCPTXT',   ' = ', inp%LCPTXT
       write(*,'(A30,A3,A)')  'RUNDIR',   ' = ', TRIM(ADJUSTL(inp%rundir))
 
