@@ -13085,7 +13085,7 @@ div#notebook {
 </li>
 <li><p><a href="#installation">Installation of Hefei-NAMD</a></p>
 </li>
-<li><p><a href="#example">An example: hot electron relaxation using Hefei-NAMD</a></p>
+<li><p><a href="#example">Learn Hefei-NAMD by an example</a></p>
 </li>
 <li><p><a href="#contact">Contact</a></p>
 </li>
@@ -13136,7 +13136,7 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
 <br /></p>
 <p>The nuclei in the <em>mixed quantum-classical medthod</em> are treated as classical particles and follow the Newton's equation. Surface hopping and Ehrenfest dynamics differ in the way how this is done: the nuclei evolve on <em>a single potential energy surface at any given moment</em> in surface hopping while on <em>an averaged potential energy surface</em> in Ehrenfest dynamics. The trajectories are allowed to hop between the potential energy surface in surface hopping. In the most famous <em>fewest-switches algorithm</em>, the hops can happen at any moment and the hopping probability bewteen the potential energy surface is given by</p>
 <p><br />
-\begin{equation}
+\begin{equation*}
     P_{jk}(t,\Delta t)=\max\Biggl(               
         -\frac{
             2\int_t^{t + \Delta t}\mathrm{d}{t}\left[
@@ -13148,7 +13148,7 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
           }
         ,\,0\, 
      \Biggr)
-\end{equation}
+\end{equation*}
 <br /></p>
 <h3 id="FSSH-+-TDDFT"><strong>FSSH + TDDFT</strong><a class="anchor-link" href="#FSSH-+-TDDFT">&#182;</a></h3><p><br />
 <img src="imgs/fssh_tddft.png" width=600px /></p>
@@ -13161,14 +13161,18 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
 </li>
 <li><p>Read <em>WAVECAR</em> in step 3 and perform NAMD.</p>
 </li>
-<li><p>Analysis the results.</p>
+<li><p>Analyze the results.</p>
 </li>
 </ol>
 <p><br /></p>
 <p><img src="imgs/flow.png" width=900px /></p>
 <h3 id="reference"><strong>reference</strong><a class="anchor-link" href="#reference">&#182;</a></h3><ul>
-<li><a href="https://onlinelibrary.wiley.com/doi/full/10.1002/wcms.1411">"Ab initio nonadiabatic molecular dynamics investigations on the excited carriers in condensed matter systems",</a>  <em>Wiley Interdisciplinary Reviews: Computational Molecular Science,</em> 9, e1411</li>
-<li><a href="https://aip.scitation.org/doi/10.1063/1.459170">"Molecular dynamics with electronic transitions",</a> <em>The Journal of Chemical Physics,</em> <strong>93</strong>(2): 1061–1071.</li>
+<li><p><a href="https://onlinelibrary.wiley.com/doi/full/10.1002/wcms.1411">"<em>Ab initio</em> nonadiabatic molecular dynamics investigations on the excited carriers in condensed matter systems",</a>  <em>Wiley Interdisciplinary Reviews: Computational Molecular Science,</em> 9, e1411</p>
+</li>
+<li><p><a href="https://aip.scitation.org/doi/10.1063/1.459170">"Molecular dynamics with electronic transitions",</a> <em>J. Chem. Lett.,</em> <strong>93</strong>(2): 1061–1071.</p>
+</li>
+<li><p><a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.95.163001">"Trajectory Surface Hopping in the Time-Dependent Kohn-Sham Approach for Electron-Nuclear Dynamics",</a> <em>Phys. Rev. Lett.</em>, <strong>95</strong>, 163001</p>
+</li>
 </ul>
 
 </div>
@@ -13203,7 +13207,22 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="3.-An-example-">3. An example <a id="example" /><a class="anchor-link" href="#3.-An-example-">&#182;</a></h2>
+<h2 id="3.-Learn-Hefei-NAMD-by-an-example-">3. Learn Hefei-NAMD by an example <a id="example" /><a class="anchor-link" href="#3.-Learn-Hefei-NAMD-by-an-example-">&#182;</a></h2><p>Below, we will go through the basic procedure of Hefei-NAMD, by investigating the photo-generated carrier dynamics at van der Waals TMD heterostructure intreface. This work was carried out by <em>Mr. Yunzhe Tian</em> (<a href="mailto:yunzhe@mail.ustc.edu.cn">yunzhe@mail.ustc.edu.cn</a>) and published on <a href="https://pubs.acs.org/doi/pdf/10.1021/acs.jpclett.9b03534"><em>J. Phys. Chem. Lett.</em>, <strong>11</strong>, 586−590(2020)</a>.</p>
+<h3 id="Ground-state-properties-of-the-vdW-heterostructure">Ground state properties of the vdW heterostructure<a class="anchor-link" href="#Ground-state-properties-of-the-vdW-heterostructure">&#182;</a></h3><p>Before doing NAMD calculations, it is always crucial to have a basic idea of the properties of the system you are about to investigate. For example, the geometry and electronic structures.</p>
+<p><img src="example/band/band.png" width=300px />
+<br /></p>
+<p>In the figure above, the band structure of the strain-free MoS$_2$/WS$_2$ heterostructure is shown. Incidently, the band strcuture can be easily obtained by using <a href="https://github.com/QijingZheng/pyband"><em>pyband</em></a>. The command line to generate the above picture is</p>
+
+<pre><code>pyband  --occ '1 2 6' \                          # the atom index of WS2
+        --occL \                                 # use the color stripes to plot the band
+        --occLC_cmap seismic \                   # choose the colormap "seismic"
+        --occLC_cbar_ticks '0 1' \               # set the color range from 0 to 1
+        --occLC_cbar_vmin 0 \                    #
+        --occLC_cbar_vmax 1 \                    #
+        --occLC_cbar_ticklabels 'MoS$_2$ WS$_2$' # 0 corresponds to MoS2, 1 corresponds to WS2
+        -k mgkm                                  # the name of the high-symmetry k-point</code></pre>
+<p>As can be clearly seen from the picture, the MoS$_2$/WS$_2$ vdW heterostructure is of type-II band alignment. We can thus proceed to investigate the</p>
+
 </div>
 </div>
 </div>
