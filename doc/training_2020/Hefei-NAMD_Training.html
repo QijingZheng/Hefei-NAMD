@@ -13221,7 +13221,15 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
         --occLC_cbar_vmax 1 \                    #
         --occLC_cbar_ticklabels 'MoS$_2$ WS$_2$' # 0 corresponds to MoS2, 1 corresponds to WS2
         -k mgkm                                  # the name of the high-symmetry k-point</code></pre>
-<p>As can be clearly seen from the picture, the MoS$_2$/WS$_2$ vdW heterostructure is of type-II band alignment. We can thus proceed to investigate the</p>
+<p>As can be clearly seen from the picture, the MoS$_2$/WS$_2$ vdW heterostructure is of <strong>type-II</strong> band alignment, where the CBM and VBM reside on different constituent TMD layers. Therefore, in this system, we can study the dynamics of photo-generated electron from WS$_2$ to MoS$_2$ or dynamics of photo-generated hole from MoS$_2$ to WS$_2$.</p>
+<p>To achieve this, we first need to build a supercell. The supercell must conform to the following rules:</p>
+<ul>
+<li><p>The supercell should be large enough, since <em>the Brillouin Zone in all the calculation hereafter will be sampled only at $\Gamma$ point</em>. Needless to say, the supercell should not be too large, too.</p>
+</li>
+<li><p>The shape or size of the supercell should be chosen carefully. The shape of the supercell is not uniquely defined. For example, in our case of MoS$_2$/WS$_2$ heterostructure, we can either choose a hexagonal supercell or a tetragonal supercell as was used in our paper. If you choose our supercell to be hexagonal, then only $3n\times 3n$ supercell should be chosen, since otherwise the $K$ point will not fold onto the $\Gamma$ point.</p>
+</li>
+</ul>
+<p>Once the supercell is determined, perform a geometry optimization and get the optimized structure.</p>
 
 </div>
 </div>
