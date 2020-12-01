@@ -13230,6 +13230,83 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
 </li>
 </ul>
 <p>Once the supercell is determined, perform a geometry optimization and get the optimized structure.</p>
+<h3 id="Ground-state-molecular-dynamics">Ground state molecular dynamics<a class="anchor-link" href="#Ground-state-molecular-dynamics">&#182;</a></h3><p>The next step is to obtain a molecular dynamics trajectory.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>General
+  SYSTEM  = Your Job Name
+  PREC    = Med
+  ISPIN   = 1
+  ISTART  = 0
+  ICHARG  = 1
+
+Electronic relaxation
+  NPAR    = 4
+  ISMEAR  = 0
+  SIGMA   = 0.1
+  ALGO    = Fast
+  NELMIN  = 4
+  NELM    = 120
+  EDIFF   = 1E-6
+
+Molecular Dynamics
+  ISYM    = 0     # turn off symmetry
+  IBRION  = 0
+  NSW     = 500   # No. of ionic steps
+  POTIM   = 1     # time step 1.0 fs
+  SMASS   = -1    # velocity rescaling
+  NBLOCK  = 4     # velocity rescaled
+                  # every NBLOCK step
+  TEBEG   = 300   # start temperature
+  TEEND   = 300   # end temperature
+
+Writing Flag
+  NWRITE  = 1     # make OUTCAR small
+  LWAVE   = .FALSE.
+  LCHARG  = .FALSE.</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>General
+  SYSTEM  = Your Job Name
+  PREC    = Med
+  ISPIN   = 1
+  ISTART  = 0
+  ICHARG  = 1
+
+Electronic relaxation
+  NPAR    = 4
+  ISMEAR  = 0
+  SIGMA   = 0.1
+  ALGO    = Fast
+  NELMIN  = 4
+  NELM    = 120
+  EDIFF   = 1E-6
+
+Molecular Dynamics
+  ISYM    = 0     # turn off symmetry
+  IBRION  = 0
+  NSW     = 5000  # NSW*POTIM fs
+  POTIM   = 1     # time step 1.0 fs
+  SMASS   = -3    # Microcanonical 
+  NBLOCK  = 1     # XDATCAR contains
+                  # positions of each step
+
+Writing Flag
+  NWRITE  = 1       # make OUTCAR small
+  LWAVE   = .FALSE. # WAVECAR not needed
+  LCHARG  = .FALSE. # CHG not needed</code></pre>
 
 </div>
 </div>
