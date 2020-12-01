@@ -13097,29 +13097,79 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="1.-A-bit-of-theory-">1. A bit of theory <a id="a_bit_of_theory" /><a class="anchor-link" href="#1.-A-bit-of-theory-">&#182;</a></h2><h3 id="Fewest-Switches-Surface-Hopping"><strong>Fewest-Switches Surface Hopping</strong><a class="anchor-link" href="#Fewest-Switches-Surface-Hopping">&#182;</a></h3><p><img src="imgs/photochem.png" width=640px /></p>
-<p>Surface hopping is a <em>mixed quantum-classical technique</em> that incorporates quantum mechanical effects into molecular dynamics simulations. Traditional molecular dynamics assume the Born-Oppenheimer approximation, where the lighter electrons adjust instantaneously to the motion of the nuclei. Though the Born-Oppenheimer approximation is applicable to a wide range of problems, there are several applications, such as photoexcited dynamics, electron transfer, and surface chemistry where this approximation falls apart. Surface hopping partially incorporates the non-adiabatic effects by including excited adiabatic surfaces in the calculations, and allowing for 'hops' between these surfaces, subject to certain criteria. One of the most famous and wide-spread criteria is the so called <strong>fewest-switches</strong> algorithm proposed by <em>John C. Tully</em>, which <em>minimizes the number of hops required to maintain the population in various adiabatic states</em>.</p>
-<p><img src="imgs/surface_hopping.png" width=640px /></p>
-<h3 id="FSSH-+-TDDFT"><strong>FSSH + TDDFT</strong><a class="anchor-link" href="#FSSH-+-TDDFT">&#182;</a></h3><p><img src="imgs/fssh_tddft.png" width=600px /></p>
-<h3 id="reference"><strong>reference</strong><a class="anchor-link" href="#reference">&#182;</a></h3><ul>
-<li><a href="https://onlinelibrary.wiley.com/doi/full/10.1002/wcms.1411"><em>Ab initio nonadiabatic molecular dynamics investigations on the excited carriers in condensed matter systems</em></a></li>
-</ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Flowchart-of-Hefei-NAMD">Flowchart of Hefei-NAMD<a class="anchor-link" href="#Flowchart-of-Hefei-NAMD">&#182;</a></h3><ol>
-<li><p>Build a supercell and perform the geometry optimization at 0 K.</p>
+<h2 id="1.-A-bit-of-theory-">1. A bit of theory <a id="a_bit_of_theory" /><a class="anchor-link" href="#1.-A-bit-of-theory-">&#182;</a></h2><h3 id="Fewest-Switches-Surface-Hopping"><strong>Fewest-Switches Surface Hopping</strong><a class="anchor-link" href="#Fewest-Switches-Surface-Hopping">&#182;</a></h3><p><br />
+<img src="imgs/photochem.png" width=640px /></p>
+<p>Surface hopping is a <em>mixed quantum-classical technique</em> that incorporates quantum mechanical effects into molecular dynamics simulations. Traditional molecular dynamics assume the Born-Oppenheimer approximation, where the lighter electrons adjust instantaneously to the motion of the nuclei. Though the Born-Oppenheimer approximation is applicable to a wide range of problems, there are several applications, such as photoexcited dynamics, electron transfer, and surface chemistry where this approximation falls apart. Surface hopping partially incorporates the non-adiabatic effects by including excited adiabatic surfaces in the calculations, and allowing for 'hops' between these surfaces, subject to certain criteria. One of the most famous criteria is the so-called <strong>fewest-switches</strong> algorithm proposed by <em>John C. Tully</em>, which <em>minimizes the number of hops required to maintain the population in various adiabatic states</em>.</p>
+<p><br /></p>
+<p>In the <em>mixed quantum-classical method</em>, electrons are treated as quantum subsystem and evolves according to  the time-dependent Schrödinger equation</p>
+<p><br />
+\begin{equation*}
+i\hbar \frac{
+    \partial\Phi(\mathbf{r}, \mathbf{R}, t)
+}{
+    \partial t
+} = 
+{\hat{\cal H}}_{el}(\mathbf{r}, \mathbf{R}) \Phi(\mathbf{r}, \mathbf{R}, t)
+\end{equation*}
+<br /></p>
+<p>We then expand the wavefunction $\Phi(\mathbf{r}, \mathbf{R}, t)$ in a basis , $\Psi_j(\mathbf{r}, \mathbf{R})$.</p>
+<p><br />
+\begin{equation*}
+\Phi(\mathbf{r}, \mathbf{R}, t) =
+\sum_j C_j(t)\Psi_j(\mathbf{r}, \mathbf{R})
+\end{equation*}
+<br /></p>
+<p>In most applications, the basis functions are selected as the eigenfunctions of ${\hat{\cal H}}_{el}(\mathbf{r}, \mathbf{R})$, which is also referred to as the adiabatic representation. Other basis or representation can also be used in the above formulation. Substituting the above equation into the time dependent Schrödinger equation gives</p>
+<p><br />
+\begin{equation*}
+i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mathbf{d}_{jk} \right]
+\end{equation*}
+<br /></p>
+<p>Where $H_{jk}$ and the <em>nonadiabatic coupling vector</em> $\mathbf{d}_{jk}$ are given by</p>
+<p><br />
+\begin{align*}
+    H_{jk} &amp;= \langle \Psi_j | {\hat{\cal H}}_{el} | \Psi_k \rangle \\
+    \mathbf{d}_{jk} &amp;= \langle \Psi_j | \nabla_{\mathbf{R}} | \Psi_k \rangle 
+\end{align*}
+<br /></p>
+<p><img src="imgs/surface_hopping.png" width=640px />
+<br /></p>
+<p>The nuclei in the <em>mixed quantum-classical medthod</em> are treated as classical particles and follow the Newton's equation. Surface hopping and Ehrenfest dynamics differ in the way how this is done: the nuclei evolve on <em>a single potential energy surface at any given moment</em> in surface hopping while on <em>an averaged potential energy surface</em> in Ehrenfest dynamics. The trajectories are allowed to hop between the potential energy surface in surface hopping. In the most famous <em>fewest-switches algorithm</em>, the hops can happen at any moment and the hopping probability bewteen the potential energy surface is given by</p>
+<p><br />
+\begin{equation}
+    P_{jk}(t,\Delta t)=\max\Biggl(               
+        -\frac{
+            2\int_t^{t + \Delta t}\mathrm{d}{t}\left[
+                \hbar^{-1} \Im(\rho_{jk} H_{jk}) -
+                \Re(\rho_{jk}\mathbf{d}_{jk}\cdot\mathbf{\dot R})
+            \right]
+          }{
+          \rho_{jj}
+          }
+        ,\,0\, 
+     \Biggr)
+\end{equation}
+<br /></p>
+<h3 id="FSSH-+-TDDFT"><strong>FSSH + TDDFT</strong><a class="anchor-link" href="#FSSH-+-TDDFT">&#182;</a></h3><p><br />
+<img src="imgs/fssh_tddft.png" width=600px /></p>
+<h3 id="A-brief-flowchart-of-Hefei-NAMD">A brief flowchart of Hefei-NAMD<a class="anchor-link" href="#A-brief-flowchart-of-Hefei-NAMD">&#182;</a></h3><ol>
+<li><p>Build a <strong>supercell</strong> of investigated system and perform the geometry optimization at 0 K.</p>
 </li>
-<li><p>Molecular dynamics equilibration run — canonical ensemble,</p>
+<li><p>Starting with the optimized structure, perform <em>ab initio</em> molecular dynamics and obtain a MD trajectory.</p>
 </li>
-<li><p>Molecular dynamics production run — microcanonical ensemble.</p>
+<li><p>Extract snapshots from the MD trajectory and perform SCF calculation for each of the snapshots.</p>
+</li>
+<li><p>Read <em>WAVECAR</em> in step 3 and perform NAMD.</p>
+</li>
+<li><p>Analysis the results.</p>
 </li>
 </ol>
-<p><img src="imgs/flowchart.png" width=300px /></p>
+<p><br /></p>
+<p><img src="imgs/flow.png" width=900px /></p>
+<h3 id="reference"><strong>reference</strong><a class="anchor-link" href="#reference">&#182;</a></h3><ul>
+<li><a href="https://onlinelibrary.wiley.com/doi/full/10.1002/wcms.1411">"Ab initio nonadiabatic molecular dynamics investigations on the excited carriers in condensed matter systems",</a>  <em>Wiley Interdisciplinary Reviews: Computational Molecular Science,</em> 9, e1411</li>
+<li><a href="https://aip.scitation.org/doi/10.1063/1.459170">"Molecular dynamics with electronic transitions",</a> <em>The Journal of Chemical Physics,</em> <strong>93</strong>(2): 1061–1071.</li>
+</ul>
 
 </div>
 </div>
