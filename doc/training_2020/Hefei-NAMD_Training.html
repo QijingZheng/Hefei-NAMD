@@ -13097,7 +13097,14 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="A-bit-of-theory-">A bit of theory <a id="a_bit_of_theory" /><a class="anchor-link" href="#A-bit-of-theory-">&#182;</a></h2>
+<h2 id="1.-A-bit-of-theory-">1. A bit of theory <a id="a_bit_of_theory" /><a class="anchor-link" href="#1.-A-bit-of-theory-">&#182;</a></h2><h3 id="Fewest-Switches-Surface-Hopping"><strong>Fewest-Switches Surface Hopping</strong><a class="anchor-link" href="#Fewest-Switches-Surface-Hopping">&#182;</a></h3><p><img src="imgs/photochem.png" width=640px /></p>
+<p>Surface hopping is a <em>mixed quantum-classical technique</em> that incorporates quantum mechanical effects into molecular dynamics simulations. Traditional molecular dynamics assume the Born-Oppenheimer approximation, where the lighter electrons adjust instantaneously to the motion of the nuclei. Though the Born-Oppenheimer approximation is applicable to a wide range of problems, there are several applications, such as photoexcited dynamics, electron transfer, and surface chemistry where this approximation falls apart. Surface hopping partially incorporates the non-adiabatic effects by including excited adiabatic surfaces in the calculations, and allowing for 'hops' between these surfaces, subject to certain criteria. One of the most famous and wide-spread criteria is the so called <strong>fewest-switches</strong> algorithm proposed by <em>John C. Tully</em>, which <em>minimizes the number of hops required to maintain the population in various adiabatic states</em>.</p>
+<p><img src="imgs/surface_hopping.png" width=640px /></p>
+<h3 id="FSSH-+-TDDFT"><strong>FSSH + TDDFT</strong><a class="anchor-link" href="#FSSH-+-TDDFT">&#182;</a></h3><p><img src="imgs/fssh_tddft.png" width=600px /></p>
+<h3 id="reference"><strong>reference</strong><a class="anchor-link" href="#reference">&#182;</a></h3><ul>
+<li><a href="https://onlinelibrary.wiley.com/doi/full/10.1002/wcms.1411"><em>Ab initio nonadiabatic molecular dynamics investigations on the excited carriers in condensed matter systems</em></a></li>
+</ul>
+
 </div>
 </div>
 </div>
@@ -13120,7 +13127,7 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Installation">Installation<a id="installation" /><a class="anchor-link" href="#Installation">&#182;</a></h2><p>Hefei-NAMD is mainly written in Fortran and barely depends on any third-party library. The installation of Hefei-NAMD is very simple, all you need is a FORTRAN compiler. On your linux shell, do the following steps:</p>
+<h2 id="2.-Installation">2. Installation<a id="installation" /><a class="anchor-link" href="#2.-Installation">&#182;</a></h2><p>Hefei-NAMD is mainly written in Fortran and barely depends on any third-party library. The compilation of Hefei-NAMD is very simple, all you need is a FORTRAN compiler. On your linux shell, do the following steps:</p>
 <ol>
 <li><p>get the source code:</p>
 <p><code>git clone https://github.com/QijingZheng/Hefei-NAMD</code></p>
@@ -13133,11 +13140,12 @@ div#notebook {
 </li>
 </ol>
 <ol>
-<li><p>Just type <code>"make"</code> and you should have an executable named <code>"namd"</code> in the current directory. In case you want to access the executable from anywhere in the system, just add the path of the namd executable to the <code>"PATH"</code> environment variable, i.e.</p>
-<p><code>cat 'export PATH=/path/to/your/namd-executable:${PATH}' &gt;&gt; ~/.bashrc</code></p>
-</li>
+<li>Just type <code>"make"</code> and you should have an executable named <code>"namd"</code> in the current directory. </li>
 </ol>
 <p><img src="imgs/namd_compilation.png" alt="Hefei-NAMD COMPILATION"></p>
+<p>In case you want to access the executable from anywhere in the system, just add the path of the namd executable to the <code>"PATH"</code> environment variable, i.e.</p>
+
+<pre><code>cat 'export PATH=/path/to/your/namd-executable:${PATH}' &gt;&gt; ~/.bashrc`</code></pre>
 
 </div>
 </div>
@@ -13145,14 +13153,14 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="An-example-">An example <a id="example" /><a class="anchor-link" href="#An-example-">&#182;</a></h2>
+<h2 id="3.-An-example-">3. An example <a id="example" /><a class="anchor-link" href="#3.-An-example-">&#182;</a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Contact">Contact<a id="contact" /><a class="anchor-link" href="#Contact">&#182;</a></h2><ul>
+<h2 id="4.-Contact">4. Contact<a id="contact" /><a class="anchor-link" href="#4.-Contact">&#182;</a></h2><ul>
 <li><p>Dr. Qijing Zheng (郑奇靖), <a href="mailto:zqj@ustc.edu.cn">zqj@ustc.edu.cn</a></p>
 </li>
 <li><p>Mr. Xiang Jiang (蒋翔), <a href="mailto:jxiang@mail.ustc.edu.cn">jxiang@mail.ustc.edu.cn</a></p>
