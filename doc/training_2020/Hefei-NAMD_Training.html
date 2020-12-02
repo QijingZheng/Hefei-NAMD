@@ -13208,7 +13208,7 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="3.-Learn-Hefei-NAMD-by-an-example-">3. Learn Hefei-NAMD by an example <a id="example" /><a class="anchor-link" href="#3.-Learn-Hefei-NAMD-by-an-example-">&#182;</a></h2><p>Below, we will go through the basic procedure of Hefei-NAMD, by investigating the photo-generated carrier dynamics at van der Waals TMD heterostructure intreface. This work was carried out by <em>Mr. Yunzhe Tian</em> (<a href="mailto:yunzhe@mail.ustc.edu.cn">yunzhe@mail.ustc.edu.cn</a>) and published on <a href="https://pubs.acs.org/doi/pdf/10.1021/acs.jpclett.9b03534"><em>J. Phys. Chem. Lett.</em>, <strong>11</strong>, 586−590(2020)</a>.</p>
-<h3 id="Ground-state-properties-of-the-vdW-heterostructure">Ground state properties of the vdW heterostructure<a class="anchor-link" href="#Ground-state-properties-of-the-vdW-heterostructure">&#182;</a></h3><p>Before doing NAMD calculations, it is always crucial to have a basic idea of the properties of the system you are about to investigate. For example, the geometry and electronic structures.</p>
+<h3 id="3.1-Ground-state-properties-of-the-vdW-heterostructure">3.1 Ground state properties of the vdW heterostructure<a class="anchor-link" href="#3.1-Ground-state-properties-of-the-vdW-heterostructure">&#182;</a></h3><p>Before doing NAMD calculations, it is always crucial to have a basic idea of the properties of the system you are about to investigate. For example, the geometry and electronic structures.</p>
 <p><img src="example/band/band.png" width=300px />
 <br /></p>
 <p>In the figure above, the band structure of the strain-free MoS$_2$/WS$_2$ heterostructure is shown. Incidently, the band strcuture can be easily obtained by using <a href="https://github.com/QijingZheng/pyband"><em>pyband</em></a>. The command line to generate the above picture is</p>
@@ -13229,8 +13229,8 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
 <li><p>The shape or size of the supercell should be chosen carefully. The shape of the supercell is not uniquely defined. For example, in our case of MoS$_2$/WS$_2$ heterostructure, we can either choose a hexagonal supercell or a tetragonal supercell as was used in our paper. If you choose our supercell to be hexagonal, then only $3n\times 3n$ supercell should be chosen, since otherwise the $K$ point will not fold onto the $\Gamma$ point.</p>
 </li>
 </ul>
-<p>Once the supercell is determined, perform a geometry optimization and get the optimized structure.</p>
-<h3 id="Ground-state-molecular-dynamics">Ground state molecular dynamics<a class="anchor-link" href="#Ground-state-molecular-dynamics">&#182;</a></h3><p>The next step is to obtain a molecular dynamics trajectory.</p>
+<p>Once the supercell is determined, perform a geometry optimization and get the optimized structure. <font color='red'>Note that Gammon-only version of VASP should be used to do the calculations, since we only sample the BZ by $\Gamma$-point and Gamma-only version of VASP will speed up the calculation by ~50%.</font></p>
+<h3 id="3.2-Ground-state-molecular-dynamics">3.2 Ground state molecular dynamics<a class="anchor-link" href="#3.2-Ground-state-molecular-dynamics">&#182;</a></h3><p>Now that we have the optimized structure, the next step is to obtain a molecular dynamics trajectory. First, we need to do an equilibration molecular dynamics to add thermal energy to the optimized structure. Below is an example VASP <code>INCAR</code> file that uses the <em>velocity-rescaling</em> method to bring the temperature of the system to 300 K. The optimized structure in the last step is used as the <code>POSCAR</code> file and the <code>KPOINTS</code> file only contains the $\Gamma$ point.</p>
 
 </div>
 </div>
@@ -13256,8 +13256,8 @@ Electronic relaxation
   EDIFF   = 1E-6
 
 Molecular Dynamics
-  ISYM    = 0     # turn off symmetry
-  IBRION  = 0
+  ISYM    = 0     # turn off symmetry for MD
+  IBRION  = 0     # turn on MD
   NSW     = 500   # No. of ionic steps
   POTIM   = 1     # time step 1.0 fs
   SMASS   = -1    # velocity rescaling
@@ -13277,6 +13277,33 @@ Writing Flag
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>The temperature of the molecular dynamics is written in the <code>OSZICAR</code> file. Use this simple script (<a href="./scripts/vaspT">vaspT</a>) to plot the temperature variationc curve.</p>
+<p><br />
+<img src="imgs/nvt_temp.png" width=400px>
+<br /></p>
+<p>The temperature of the system behaves something like the picture above. Initially, the temperature fluctuates drastically. As time goes by, the amplitude of the fluctuation should become smaller and finally the temperature should oscillate around the specified temperature (<code>TEEND</code>). A general rule of thumb is that once the fluctuation is smaller than 10% of the expected temperature, the system can be considered as being in equilibrium and the calculation can be stopped.</p>
+<ul>
+<li><p>Note that we have set <code>NSW = 500</code> in the INCAR file. Sometimes, the system may not reach the equilibrium in one single run. As a result, you should make a new directory, copy <code>CONTCAR</code> to <code>POSCAR</code> and start another run.</p>
+</li>
+<li><p>Another important parameter is the <code>POTIM</code>, which is determined by the highest vibration frequency of the system. If there are light elements in your supercell, hydrogen for example, you might want to use a smaller <code>POTIM</code>.</p>
+</li>
+<li><p>After the system reaches equilibrium, have a look at the final structure <code>CONTCAR</code>, make sure that the structure is OK. I have run into cases when the temperature looked good while the layer distance became too large, in a sense that they were more like two independent parts. In this case, you might want to try another algorithm, e.g. <code>SMASS &gt; 0</code>.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 
 <pre><code>General
   SYSTEM  = Your Job Name
@@ -13295,8 +13322,8 @@ Electronic relaxation
   EDIFF   = 1E-6
 
 Molecular Dynamics
-  ISYM    = 0     # turn off symmetry
-  IBRION  = 0
+  ISYM    = 0     # turn off symmetry in MD
+  IBRION  = 0     # MD flag
   NSW     = 5000  # NSW*POTIM fs
   POTIM   = 1     # time step 1.0 fs
   SMASS   = -3    # Microcanonical 
