@@ -13439,6 +13439,139 @@ Writing Flag
 <p><br />
 <img src="example/results/td_ks_energies/ksen_wht.png" width=600px />
 <br /></p>
+<p>This script will read the energies and weight of selected atoms from the <code>PROCAR</code>s in the sub-directories <code>0001</code> to <code>2000</code>. Moreover, these data will be saved as <code>all_en.npy</code> and <code>all_wht.npy</code> so that on a second call of the script, there is no need to read the <code>PROCAR</code>s again. Below are some customized parameters that need to be specified.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nsw</span>     <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">dt</span>      <span class="o">=</span> <span class="mf">1.0</span> 
+<span class="n">nproc</span>   <span class="o">=</span> <span class="mi">8</span> 
+<span class="n">prefix</span>  <span class="o">=</span> <span class="s1">&#39;waveprod/run/&#39;</span>
+<span class="n">runDirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;/</span><span class="si">{:04d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsw</span><span class="p">)]</span>
+<span class="c1"># which spin, index starting from 0</span>
+<span class="n">whichS</span>  <span class="o">=</span> <span class="mi">0</span> 
+<span class="c1"># which k-point, index starting from 0</span>
+<span class="n">whichK</span>  <span class="o">=</span> <span class="mi">0</span> 
+<span class="c1"># which atoms, index starting from 0. </span>
+<span class="c1"># In this case, the atomic index of WS2</span>
+<span class="n">whichA</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">54</span><span class="p">)</span> <span class="o">+</span> <span class="mi">54</span>
+<span class="n">Alabel</span>  <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;WS$_2$&#39;</span>
+<span class="n">Blabel</span>  <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;MoS$_2$&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will investigate the photo-generated electron transfer from WS$_2$ to MoS$_2$. The initial photoexcited electron is located at the conduction band contributed by WS$_2$ at about 1.5 eV. The hot electron will relax to the conduction band minimum.</p>
+<p>To perform a NAMD calculation, we need two input files: <code>inp</code> and <code>INICON</code>.</p>
+<ul>
+<li><p><code>inp</code> contains the input control parameters.</p>
+</li>
+<li><p><code>INICON</code> contains the initial excited conditions.</p>
+</li>
+</ul>
+<p>Below is the <code>inp</code> file that we used:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>&amp;NAMDPARA
+  BMIN     = 325    ! bottom band index, starting from 1
+  BMAX     = 335    ! top band index
+  NBANDS   = 388    ! number of bands
+
+  NSW      = 2000   ! number of ionic steps
+  POTIM    = 1      ! MD time step
+  TEMP     = 300    ! temperature in Kelvin
+
+  NSAMPLE  = 100    ! number of samples
+  NAMDTIME = 1000   ! time for NAMD run
+  NELM     = 1000   ! electron time step
+  NTRAJ    = 5000   ! SH trajectories
+  LHOLE    = .FALSE.! hole/electron SH
+
+  RUNDIR   = "waveprod/run/"
+!  LCPEXT   = .TRUE.
+/                   ! **DO NOT FORGET THE SLASH HERE!**</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A few notes:</p>
+<ul>
+<li><p><code>BMIN/BMAX</code> depend on the problem you are investigating, basically the charge carrier will hop among the bands with index between <code>BMIN</code> and <code>BMAX</code>.</p>
+<p>In our case here, we are doing a hot electron relaxation process, therefore the <code>BMIN</code> should be the CBM index. On the other hand, the BMAX should be large enough so that it incorporate the initial band (about 329).
+<br /></p>
+</li>
+<li><p><code>NSAMPLE</code> is the number of initial conditions contained in <code>INICON</code> file.
+<br /></p>
+</li>
+<li><p><code>NAMDTIME</code> is the time for NAMD calculation
+<br /></p>
+</li>
+<li><p>In the first run, the program will check if there exists a file named <strong>COUPCAR</strong>. If the file does not exist, then the program will read the <code>WAVECAR</code>s and generate the <code>COUPCAR</code>. The <code>COUPCAR</code> contains all the information needed to run an NAMD calculation, i.e. all the nonadiabatic couplings (NAC) and all the Kohn-Sham energies.</p>
+<p>The <code>COUPCAR</code> is a binary file and is usually very large, about a few gigabytes. Therefore, the program also writes out two text files: <code>EIGTXT</code> and <code>NATXT</code>, which contains the Kohn-Sham energies and NAC contributed by the bands within BMIN and BMAX.</p>
+<p>If <code>LCPEXT = .TRUE.</code> and the <code>COUPCAR</code> exist (<em>can be empty</em>), then the program will read the two TXT files and start the NAMD calculation.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Below we show the first few lines of the <code>INICON</code> file.</p>
+
+<pre><code>1 329
+2 329
+3 329
+4 329
+5 329
+6 329
+7 329
+8 329
+9 329</code></pre>
+<p><br />
+<img src='imgs/inicon_exp.png' width=600px />
+<br /></p>
+<ul>
+<li><p>The number of lines in <code>INICON</code> is given by <code>NSAMPLE</code> in <code>inp</code> file.</p>
+</li>
+<li><p>The first column is the initial time. In practice, initial time + <code>NAMDTIME</code> should be less than <code>NSW</code>, otherwise, there will be segmentation fault.</p>
+</li>
+<li><p>The second column is the initial band index of the corresponding initial time. Due to band crossings, the initial band index at different time might be different.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once the two input files are ready, just type <code>/path/to/your/namd</code> or <code>namd</code> if you have set the <code>PATH</code> environment variable. In our case, since the <code>COUPCAR</code> is too large, we will skip the <code>COUPCAR</code> and read the two TXT files.</p>
+<p><br />
+<img src="imgs/namd_example_run.png">
+<br /></p>
 
 </div>
 </div>
@@ -13461,32 +13594,6 @@ Writing Flag
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
 </div>
     </div>
   </div>
