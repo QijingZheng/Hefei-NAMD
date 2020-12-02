@@ -13417,10 +13417,13 @@ Writing Flag
 <li>The <code>INCAR</code> is just any ordinary SCF <code>INCAR</code> except a few notes to the tags in the <code>INCAR</code></li>
 </ul>
 
-<pre><code>   LWAVE = .TRUE.     # We need the WAVECARs
+<pre><code>    PREC = Accurate   # Precision large enough for accurte descripiton of the wavefunction
+   EDIFF = 1E-6       # well converged electronic structure
+   LWAVE = .TRUE.     # We need the WAVECARs
   NBANDS = xxx        # make sure we have the same number of bands. 
                       # Also be large enough, since the last few bands are not very accurate.
-  LORBIT = 11         # we will need PROCAR to analyze the results</code></pre>
+  LORBIT = 11         # we will need PROCAR to analyze the results
+    NELM = 120        # large enouth so that the electronic structure can converge the require precision</code></pre>
 <ul>
 <li>After all the SCF calculations are finished, check that all <code>WAVECAR</code>s have the same size. We can do this with a small bash command line. As can be clearly seen in the output, the WAVECAR in <code>0200</code> has a different size.</li>
 </ul>
