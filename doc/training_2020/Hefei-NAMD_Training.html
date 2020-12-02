@@ -13579,6 +13579,44 @@ Writing Flag
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>When the program finishes, you will find two types of output files:</p>
+<ul>
+<li><p><code>PSICT.*</code> files, the suffix of which correspond to the initial time in the <code>INICON</code> file. Apparently, there are <code>NSAMPLE</code> such files. These files contains the time-dependent expansion coefficients.</p>
+</li>
+<li><p><code>SHPROP.*</code> files, with the meaning of the suffix same as <code>PSICT.*</code>. These files contains the populations of the of the selected bands.</p>
+<p>Utilize this script <a href="https://github.com/QijingZheng/Hefei-NAMD/blob/master/scripts/poen_fssh.py">poen_fssh.py</a> to process <code>SHPROP.*</code> files and get the time evolution of the populations. The results should look like this:</p>
+</li>
+</ul>
+<p><br />
+<img src='example/results/namd/kpoen.png' width=600px />
+<br /></p>
+<p>Below are some customized parameters that that you might want to change:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nsw</span> <span class="o">=</span> <span class="mi">2000</span>        <span class="c1"># same as NSW of inp</span>
+<span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;waverpod/run&#39;</span>
+                  <span class="c1"># </span>
+<span class="n">bmin</span> <span class="o">=</span> <span class="mi">324</span>        <span class="c1"># python index starts from 0, so this one is the BMIN of inp minus 1</span>
+<span class="n">bmax</span> <span class="o">=</span> <span class="mi">335</span>        <span class="c1"># the same as BMAX of inp</span>
+<span class="n">namdTime</span> <span class="o">=</span> <span class="mi">1000</span>   <span class="c1"># same as NAMDTIME of inp</span>
+<span class="n">potim</span> <span class="o">=</span> <span class="mf">1.0</span>       <span class="c1"># same as POTIM of inp</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="4.-Contact">4. Contact<a id="contact" /><a class="anchor-link" href="#4.-Contact">&#182;</a></h2><ul>
 <li><p>Dr. Qijing Zheng (郑奇靖), <a href="mailto:zqj@ustc.edu.cn">zqj@ustc.edu.cn</a></p>
 </li>
