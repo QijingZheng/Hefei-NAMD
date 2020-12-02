@@ -13077,7 +13077,12 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Hefei-NAMD-Training-Session-2020">Hefei-NAMD Training Session 2020<a class="anchor-link" href="#Hefei-NAMD-Training-Session-2020">&#182;</a></h1><p><img src="imgs/Hefei-NAMD.gif" alt="Hefei-NAMD LOGO"></p>
+<h1 id="Hefei-NAMD-Training-Session-2020">Hefei-NAMD Training Session 2020<a class="anchor-link" href="#Hefei-NAMD-Training-Session-2020">&#182;</a></h1><p><br />
+Qijing Zheng (郑奇靖) <br />
+Department of Physics <br />
+University of Science and Technology of China <br /></p>
+<p><br /></p>
+<p><img src="imgs/Hefei-NAMD.gif" alt="Hefei-NAMD LOGO"></p>
 <p>In this training session, we will learn how to do an NAMD calculation using Hefei-NAMD.</p>
 <p>Outline of the session:</p>
 <ul>
@@ -13230,7 +13235,7 @@ i\hbar\dot C_j(t) = \sum_k C_k(t) \left[H_{jk} - i\hbar\mathbf{\dot R}\cdot \mat
 </li>
 </ul>
 <p>Once the supercell is determined, perform a geometry optimization and get the optimized structure. <font color='red'>Note that Gammon-only version of VASP should be used to do the calculations, since we only sample the BZ by $\Gamma$-point and Gamma-only version of VASP will speed up the calculation by ~50%.</font></p>
-<h3 id="3.2-Ground-state-molecular-dynamics">3.2 Ground state molecular dynamics<a class="anchor-link" href="#3.2-Ground-state-molecular-dynamics">&#182;</a></h3><p>Now that we have the optimized structure, the next step is to obtain a molecular dynamics trajectory. First, we need to do an equilibration molecular dynamics to add thermal energy to the optimized structure. Below is an example VASP <code>INCAR</code> file that uses the <em>velocity-rescaling</em> method to bring the temperature of the system to 300 K. The optimized structure in the last step is used as the <code>POSCAR</code> file and the <code>KPOINTS</code> file only contains the $\Gamma$ point.</p>
+<h3 id="3.2-Ground-state-molecular-dynamics">3.2 Ground state molecular dynamics<a class="anchor-link" href="#3.2-Ground-state-molecular-dynamics">&#182;</a></h3><p>Now that we have the optimized structure, the next step is to obtain a molecular dynamics trajectory. First, we need to do an equilibration molecular dynamics to add thermal energy to the optimized structure. Below is an example VASP <code>INCAR</code> file that uses the <em>velocity-rescaling</em> method (<code>SMASS = -1</code>) to bring the temperature of the system to 300 K. The optimized structure in the last step is used as the <code>POSCAR</code> file and the <code>KPOINTS</code> file only contains the $\Gamma$ point.</p>
 
 </div>
 </div>
@@ -13297,6 +13302,17 @@ Writing Flag
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>Once the system reaches equilibrium, we can proceed to the next step: the production MD. In this step, we run the MD with the microcanonical ensemble (<code>SMASS = -3</code>), as is shown in the <code>INCAR</code> example below.</p>
+<ul>
+<li><p>make another new directory and copy <code>CONTCAR</code> of last step as <code>POSCAR</code> of the current step.</p>
+</li>
+<li><p>set <code>NBLOCK = 1</code> in <code>INCAR</code> to write every snapshot of the trajectory to <code>XDATCAR</code>, which we will need to extract the configurations.</p>
+</li>
+<li><p>The <code>NSW</code> depends on the time scale of the problem you are investigating. For example, in our example of photo-generated carrier dynamics, the experimental time scale is about 100 fs, then <code>NSW = 5000</code> is far more than enough. For processes that are generally much slower, e.g, the electron/hole recombination process, which might be of nanosecond scale, <code>NSW = 5000</code> might not be enough. We use another techinique to deal with this problem, which is not covered in the current session.</p>
+</li>
+<li><p>In the microccanonical ensemble (NVE), the total energy is conserved, which can be used as a signature of the quality of the MD run. (See the third figure in the output of <a href="./scripts/vaspT">vaspT</a>).</p>
+</li>
+</ul>
 
 </div>
 </div>
@@ -13334,6 +13350,90 @@ Writing Flag
   NWRITE  = 1       # make OUTCAR small
   LWAVE   = .FALSE. # WAVECAR not needed
   LCHARG  = .FALSE. # CHG not needed</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.3-SCF-calculations">3.3 SCF calculations<a class="anchor-link" href="#3.3-SCF-calculations">&#182;</a></h3><p>In this step, we will extract the nuclei positions at eath time step from the MD trajectory and then perform SCF calculation for each one of them. We can do this with the help of a small python script, wihich utilize the <a href="https://wiki.fysik.dtu.dk/ase/index.html">Atomic Simulation Environment (ASE)</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">ase.io</span> <span class="k">import</span> <span class="n">read</span><span class="p">,</span> <span class="n">write</span>
+
+<span class="c1"># This may take a little while, since OUTCAR may be large for long MD run.</span>
+<span class="c1"># CONFIGS = read(&#39;/path/to/OUTCAR&#39;, format=&#39;vasp-out&#39;, index=&#39;:&#39;)</span>
+
+<span class="c1">################################################################################</span>
+<span class="c1"># or you can read positions from XDATCAR, which is faster since it only contains</span>
+<span class="c1"># the coordinates.  You may have to process the XDATCAR beforehand when VASP</span>
+<span class="c1"># forget to write some lines. Executing the following line on shell prompt.</span>
+<span class="c1">################################################################################</span>
+<span class="c1"># sed -i &#39;s/^\s*$/Direct configuration=/&#39; XDATCAR</span>
+<span class="c1">################################################################################</span>
+<span class="n">CONFIGS</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s1">&#39;/path/to/NVE/XDATCAR&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;vasp-xdatcar&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+
+<span class="n">NSW</span>    <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">CONFIGS</span><span class="p">)</span>               <span class="c1"># The number of ionic steps</span>
+<span class="n">NSCF</span>   <span class="o">=</span> <span class="mi">2000</span>                       <span class="c1"># Choose last NSCF steps for SCF calculations</span>
+<span class="n">NDIGIT</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NSCF</span><span class="p">))</span>   <span class="c1">#</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s1">&#39;./run/&#39;</span>                   <span class="c1"># run directories</span>
+<span class="n">DFORM</span>  <span class="o">=</span> <span class="s2">&quot;/</span><span class="si">%%</span><span class="s2">0</span><span class="si">%d</span><span class="s2">d&quot;</span> <span class="o">%</span> <span class="n">NDIGIT</span>         <span class="c1"># run dirctories format</span>
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NSCF</span><span class="p">):</span>              <span class="c1"># write POSCARs</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">CONFIGS</span><span class="p">[</span><span class="n">ii</span> <span class="o">-</span> <span class="n">NSCF</span><span class="p">]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">(</span><span class="n">PREFIX</span> <span class="o">+</span> <span class="n">DFORM</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:s}</span><span class="s1">/POSCAR&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">p</span><span class="p">,</span> <span class="n">vasp5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">direct</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This script can read the MD trajectory from either <code>OUTCAR</code> or <code>XDATCAR</code> file. Subsequently, the script saves the last <code>NSCF</code> (in this case 2000) snapshots as VASP <code>POSCAR</code> files under the directory <code>PREFIX</code> ("./run" in this case). Modify the script accordingly to fit your need before executing the script. When it finishes, you should have 2000 directories named <code>0001/</code> to <code>2000/</code> under the parent directory <code>PREFIX</code>.</p>
+<p>The next step is to perform SCF calculations under these 2000 directories.</p>
+<ul>
+<li>Prepare <code>INCAR</code>, <code>KPOINTS</code> and <code>POTCAR</code> under the <code>PREFIX</code> directory. Create symbolic links in each sub-directory <code>0001/</code> to <code>2000/</code> using the following <code>bash</code> for-loop.</li>
+</ul>
+<p><br />
+<img src="imgs/vaspinps_forloop.png">
+<br /></p>
+<ul>
+<li>The <code>INCAR</code> is just any ordinary SCF <code>INCAR</code> except a few notes to the tags in the <code>INCAR</code></li>
+</ul>
+
+<pre><code>   LWAVE = .TRUE.     # We need the WAVECARs
+  NBANDS = xxx        # make sure we have the same number of bands. 
+                      # Also be large enough, since the last few bands are not very accurate.
+  LORBIT = 11         # we will need PROCAR to analyze the results</code></pre>
+<ul>
+<li>After all the SCF calculations are finished, check that all <code>WAVECAR</code>s have the same size. We can do this with a small bash command line. For example, as can be clearly seen in the output, the WAVECAR in <code>0200</code> has a different size.</li>
+</ul>
+<p><br />
+<img src="imgs/wavecar_check.png">
+<br /></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="3.4-NAMD-calculations">3.4 NAMD calculations<a class="anchor-link" href="#3.4-NAMD-calculations">&#182;</a></h3><p>Finally, we are in a position to start NAMD calculations.</p>
 
 </div>
 </div>
