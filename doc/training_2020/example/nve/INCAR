@@ -1,0 +1,40 @@
+General
+   SYSTEM = Mo S
+     PREC = Med
+#     ENCUT = 400 eV
+    ISPIN = 1
+   ISTART = 0
+   ICHARG = 1
+      GGA = PE
+
+Dos Related values
+     NPAR = 4
+   ISMEAR = 0
+    SIGMA = 0.1
+#    LORBIT = 11
+
+Electronic relaxation
+#     IALGO = 38
+     ALGO = Fast
+   NELMIN = 4
+     NELM = 80
+    EDIFF = 1E-6
+
+Molecular Dynamics
+     ISYM = 0
+   IBRION = 0
+      NSW = 5000
+    POTIM = 1
+    SMASS = -3
+   NBLOCK = 1
+
+Writing Flag
+   NWRITE = 1
+    LWAVE = .TRUE.
+   LCHARG = .FALSE.
+
+VDW-D2
+     LVDW = .TRUE.
+  VDW_C6 =   24.67  5.57  81.24
+  VDW_R0 =   1.639  1.683  1.7721
+  

@@ -13364,7 +13364,7 @@ Writing Flag
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
@@ -13380,14 +13380,15 @@ Writing Flag
 <span class="c1"># the coordinates.  You may have to process the XDATCAR beforehand when VASP</span>
 <span class="c1"># forget to write some lines. Executing the following line on shell prompt.</span>
 <span class="c1">################################################################################</span>
-<span class="c1"># sed -i &#39;s/^\s*$/Direct configuration=/&#39; XDATCAR</span>
+<span class="c1"># for vasp version &lt; 5.4, please execute the following command before the script</span>
+<span class="c1"># sed -i &#39;s/^\s*$/Direct configuration=/&#39; XDATCAR  </span>
 <span class="c1">################################################################################</span>
-<span class="n">CONFIGS</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s1">&#39;/path/to/NVE/XDATCAR&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;vasp-xdatcar&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+<span class="n">CONFIGS</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="s1">&#39;example/nve/XDATCAR&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;vasp-xdatcar&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
 
 <span class="n">NSW</span>    <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">CONFIGS</span><span class="p">)</span>               <span class="c1"># The number of ionic steps</span>
 <span class="n">NSCF</span>   <span class="o">=</span> <span class="mi">2000</span>                       <span class="c1"># Choose last NSCF steps for SCF calculations</span>
 <span class="n">NDIGIT</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NSCF</span><span class="p">))</span>   <span class="c1">#</span>
-<span class="n">PREFIX</span> <span class="o">=</span> <span class="s1">&#39;./run/&#39;</span>                   <span class="c1"># run directories</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s1">&#39;example/waveprod/run/&#39;</span>    <span class="c1"># run directories</span>
 <span class="n">DFORM</span>  <span class="o">=</span> <span class="s2">&quot;/</span><span class="si">%%</span><span class="s2">0</span><span class="si">%d</span><span class="s2">d&quot;</span> <span class="o">%</span> <span class="n">NDIGIT</span>         <span class="c1"># run dirctories format</span>
 <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NSCF</span><span class="p">):</span>              <span class="c1"># write POSCARs</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">CONFIGS</span><span class="p">[</span><span class="n">ii</span> <span class="o">-</span> <span class="n">NSCF</span><span class="p">]</span>
@@ -13421,7 +13422,7 @@ Writing Flag
                       # Also be large enough, since the last few bands are not very accurate.
   LORBIT = 11         # we will need PROCAR to analyze the results</code></pre>
 <ul>
-<li>After all the SCF calculations are finished, check that all <code>WAVECAR</code>s have the same size. We can do this with a small bash command line. For example, as can be clearly seen in the output, the WAVECAR in <code>0200</code> has a different size.</li>
+<li>After all the SCF calculations are finished, check that all <code>WAVECAR</code>s have the same size. We can do this with a small bash command line. As can be clearly seen in the output, the WAVECAR in <code>0200</code> has a different size.</li>
 </ul>
 <p><br />
 <img src="imgs/wavecar_check.png">
