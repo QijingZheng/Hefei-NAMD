@@ -67,7 +67,8 @@ module shop
 
     Akk = CONJG(ks%psi_a(cstat, tion)) * ks%psi_a(cstat, tion)
     ! Bkm = REAL(CONJG(Akm) * Ckm)
-    ks%Bkm = -2. * REAL(CONJG(ks%psi_a(cstat, tion)) * ks%psi_a(:, tion) * &
+    ! P(k -> m) = 2 Re [ CONJG(C_k) * C_m * d_km ] / ( CONJG(C_k) * C_k )
+    ks%Bkm = 2. * REAL(CONJG(ks%psi_a(cstat, tion)) * ks%psi_a(:, tion) * &
                     ks%NAcoup(cstat, :, tion))
 
     ks%sh_prop(:,tion) = ks%Bkm / Akk * inp%POTIM
