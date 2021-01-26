@@ -58,7 +58,10 @@ module TimeProp
       ! do tele = 1, inp%NELM-1
       do tele = 1, inp%NELM
         ! construct hamiltonian matrix
-        call make_hamil2(tion, tele, ks, inp)
+        !Exact
+        call make_hamil3(tion, tele, ks, inp)
+        !Convential 
+        !call make_hamil2(tion, tele, ks, inp)
 
 
         ! propagate the psi_c according to Liouville-Trotter algorithm

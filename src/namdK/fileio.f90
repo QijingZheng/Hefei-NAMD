@@ -123,6 +123,11 @@ module fileio
       read(unit=8, nml=NAMDPARA)
       close(unit=8)
 
+      if ( mod(nelm, 2) /= 0 ) then      
+         write(*,*) "NELM should be a even number"
+         stop
+      end if
+
       allocate(inp%INIBAND_A(nsample), inp%NAMDTINI_A(nsample))
       inquire(file=tbinit, exist=lext)
       if (.NOT. lext) then
