@@ -35,11 +35,7 @@ module TimeProp
     
     
     
-    ks%pop_a(:,tion) = CONJG(ks%psi_c) * ks%psi_c
-    ks%norm(tion) = SUM(ks%pop_a(:,tion))
-    ks%psi_a(:,tion) = ks%psi_c
 
-    ks%pop_a(:,tion) = ks%pop_a(:,tion)/ks%norm(tion) 
 
 
     edt = inp%POTIM / inp%NELM
@@ -84,7 +80,6 @@ module TimeProp
             ckk = ks%psi_c(kk)
             ks%psi_c(jj) =  cos_phi * cjj + sin_phi * ckk
             ks%psi_c(kk) = -sin_phi * cjj + cos_phi * ckk
-
           end do
         end do
         
@@ -114,6 +109,18 @@ module TimeProp
           end do
         end do
       end do
+
+     ks%pop_a(:,tion) = CONJG(ks%psi_c) * ks%psi_c
+     ks%norm(tion) = SUM(ks%pop_a(:,tion))
+     if (ks%norm(tion) <= 0.99_q) then
+        write(*,*) "Error in Electronic Propagation"
+        stop
+     end if
+ 
+     ks%psi_a(:,tion) = ks%psi_c
+     ks%pop_a(:,tion) = ks%pop_a(:,tion)/ks%norm(tion) 
+
+
       !write(89,*) tion, conjg(ks%psi_c)*ks%psi_c
       !write(89,*) 'sum', sum(conjg(ks%psi_c)*ks%psi_c)
       ! ! end of the INNER loop

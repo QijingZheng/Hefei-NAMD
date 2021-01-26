@@ -248,7 +248,11 @@ module couplings
     if (lcoup) then
       ! file containing couplings exists, then read it
       if (inp%LCPTXT) then
-        call readNaEigCpx(olap_sec, inp)
+        call readNaEig(olap_sec, inp)
+        !The Trotter formula used to integrate the Time-dependtent Schrodinger
+        !equation is unstable with complex NAC. Please rotate your NAC to real
+        !numbers.
+        !call readNaEigCpx(olap_sec, inp)
         if (inp%LSPACE) then
           call initspace(olap_sec,inp)
         end if
@@ -345,15 +349,19 @@ module couplings
       stop
     end if
 
+    !Changed NAC martix structure.
+    !NAC(t,i,j) is stored as Dij(j,i,t) 
+    
     N = inp%NSW - 1
     do j=1, N + 1
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
-      read(unit=23, fmt=*) ((olap_sec%Dij(i,j, k), j=1, inp%NBASIS), &
+      read(unit=23, fmt=*) ((olap_sec%DijR(j, i, k), j=1, inp%NBASIS), &
                                                    i=1, inp%NBASIS)
     end do
 
+    olap_sec%Dij=olap_sec%DijR !+0.0_q*imgUnit
     close(unit=22)
     close(unit=23)
   end subroutine

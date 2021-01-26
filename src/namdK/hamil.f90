@@ -66,8 +66,8 @@ module hamil
       !!!!allocate(ks%psi_p(N))
       !!!!allocate(ks%psi_n(N))
       allocate(ks%hpsi(N))
-      allocate(ks%psi_a(N, inp%NAMDTIME))
-      allocate(ks%pop_a(N, inp%NAMDTIME))
+      allocate(ks%psi_a(N, 0:inp%NAMDTIME))
+      allocate(ks%pop_a(N, 0:inp%NAMDTIME))
       allocate(ks%norm(inp%NAMDTIME))
       !!!!allocate(ks%pop_c(N))
       !!!!allocate(ks%pop_n(N))
@@ -80,8 +80,8 @@ module hamil
       !allocate(ks%NAcoup(N, N, inp%NAMDTIME))
       allocate(ks%NAcoup(N, N, 0:inp%NSW-1))
 
-      allocate(ks%sh_pops(N, inp%NAMDTIME))
-      allocate(ks%sh_prop(N, inp%NAMDTIME))
+      allocate(ks%sh_pops(N, 0:inp%NAMDTIME))
+      allocate(ks%sh_prop(N, 0:inp%NAMDTIME))
       allocate(ks%Bkm(N))
       !!allocate(ks%dish_pops(N, inp%RTIME))
       !!allocate(ks%recom_pops(N,inp%RTIME))
@@ -247,6 +247,7 @@ module hamil
     ks%ham_c = -imgUnit * hbar * ks%ham_c 
     
     ! the energy eigenvalue part
+    ! slighty different, but it won't be a big deal
     do i=1, ks%ndim
       !Hii(t+0.5dt)
       !ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,tion) + ks%eigKs(i,tion+1))

@@ -151,7 +151,9 @@ module shop
 
     ks%sh_pops = ks%sh_pops / inp%NTRAJ
     ! ks%sh_prop = ks%sh_prop / inp%NTRAJ
-
+    ks%sh_pops(inp%INIBAND - inp%BMIN + 1,0) = 1.0_q
+    ks%pop_a(inp%INIBAND - inp%BMIN + 1,0) = 1.0_q
+    ks%psi_a(inp%INIBAND - inp%BMIN + 1,0) = uno 
     ! do tion=1, inp%NAMDTIME
     !   write(*,*) (ks%sh_pops(i,tion), i=1, ks%ndim)
     ! end do
@@ -197,11 +199,19 @@ module shop
       write(io,'(A,A12,A3,L5)') '#', 'LCPTXT',   ' = ', inp%LCPTXT
       write(io,'(A,A12,A3,A)')  '#', 'RUNDIR',   ' = ', TRIM(ADJUSTL(inp%rundir))
     end do
-
-    do tion=1, inp%NAMDTIME
-      write(unit=24, fmt=out_fmt) tion * inp%POTIM, SUM(ks%eigKs(:,tion) * ks%sh_pops(:,tion)), &
+    
+    tion = 0
+      write(unit=24, fmt=out_fmt) tion * inp%POTIM, SUM(ks%eigKs(:,1) * ks%sh_pops(:,tion)), &
                             (ks%sh_pops(i,tion), i=1, ks%ndim)
-      write(unit=25, fmt=out_fmt) tion * inp%POTIM, SUM(ks%eigKs(:,tion) * ks%pop_a(:,tion)), &
+      write(unit=25, fmt=out_fmt) tion * inp%POTIM, SUM(ks%eigKs(:,1) * ks%pop_a(:,tion)), &
+                            (ks%psi_a(i,tion), i=1, ks%ndim)
+                            ! (ks%pop_a(i,tion), i=1, ks%ndim)
+    
+
+    do tion=1, inp%NAMDTIME-1
+      write(unit=24, fmt=out_fmt) tion * inp%POTIM, SUM(ks%eigKs(:,tion+1) * ks%sh_pops(:,tion)), &
+                            (ks%sh_pops(i,tion), i=1, ks%ndim)
+      write(unit=25, fmt=out_fmt) tion * inp%POTIM, SUM(ks%eigKs(:,tion+1) * ks%pop_a(:,tion)), &
                             (ks%psi_a(i,tion), i=1, ks%ndim)
                             ! (ks%pop_a(i,tion), i=1, ks%ndim)
     end do
