@@ -11,8 +11,8 @@ module couplings
     integer :: TSTEPS
     real(kind=q) :: dt
     complex(kind=q), allocatable, dimension(:,:,:) :: Dij
-    complex(kind=q), allocatable, dimension(:,:,:) :: DijR
-    complex(kind=q), allocatable, dimension(:,:,:) :: DijI
+    real(kind=q), allocatable, dimension(:,:,:) :: DijR
+    real(kind=q), allocatable, dimension(:,:,:) :: DijI
     real(kind=q), allocatable, dimension(:,:) :: Eig
   end type
 
@@ -248,7 +248,7 @@ module couplings
     if (lcoup) then
       ! file containing couplings exists, then read it
       if (inp%LCPTXT) then
-        call readNaEigcpx(olap_sec, inp)
+        call readNaEigCpx(olap_sec, inp)
         if (inp%LSPACE) then
           call initspace(olap_sec,inp)
         end if
@@ -364,7 +364,7 @@ module couplings
     type(overlap), intent(inout) :: olap_sec
     type(namdInfo), intent(in) :: inp
     integer :: i, j, k, N, ierr
-
+    complex(q) :: phase
     open(unit=22, file='EIGTXT', status='unknown', action='read', iostat=ierr)
     if (ierr /= 0) then
       write(*,*) "EIGTXT does NOT exist!"
@@ -386,18 +386,30 @@ module couplings
     !len(NAC)=NSW Since NAC is at time t+0.5dt, while EIG is at time t
     !So we use NSW-1 NAC and NSW EIG here, and calculate average EIG at t+0.5dt
     !for Hii(t+0.5dt) in hamil.f90
+    !Changed NAC martix structure.
+    !NAC(t,i,j) is stored as Dij(j,i,t) 
     do j=1, N + 1
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
-      read(unit=42, fmt=*) ((olap_sec%DijR(i,j, k), j=1, inp%NBASIS), &
+      read(unit=42, fmt=*) ((olap_sec%DijR(j,i, k), j=1, inp%NBASIS), &
                                                    i=1, inp%NBASIS)
 
-      read(unit=43, fmt=*) ((olap_sec%DijI(i,j, k), j=1, inp%NBASIS), &
+      read(unit=43, fmt=*) ((olap_sec%DijI(j,i, k), j=1, inp%NBASIS), &
                                                    i=1, inp%NBASIS)
                                                      
     end do
+
     olap_sec%Dij=olap_sec%DijR+olap_sec%DijI*imgUnit
+    
+    
+    ! Random phase test
+    !phase = 1.3_q    
+    !phase = 0.0_q    
+    !write(*,*) olap_sec%Dij(1,2,4)
+    !olap_sec%Dij(2,:,:)= olap_sec%Dij(2,:,:) * exp( (0.0_q,-1.0_q) * phase)
+    !olap_sec%Dij(:,2,:)= olap_sec%Dij(:,2,:) * exp( (0.0_q,1.0_q) * phase)
+    !write(*,*) olap_sec%Dij(1,2,4)
     ! write(*,*) olap_sec%Dij
     close(unit=22)
     close(unit=42)

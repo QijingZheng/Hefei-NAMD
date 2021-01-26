@@ -103,13 +103,13 @@ module hamil
     !Using NAMDTIME in NAC loading
  
     do i=1, inp%NAMDTIME
+    
     ! We don't need all the information, only a section of it
        ks%eigKs(:,i) = olap%Eig(:, inp%NAMDTINI + i - 1)
     ! Divide by 2 * POTIM here, because we didn't do this in the calculation
     ! of couplings
        ks%NAcoup(:,:,i) = olap%Dij(:,:, inp%NAMDTINI + i - 1) / (2*inp%POTIM)
     end do
-    !write(500,*) "eig",olap%Eig
 
     !In DISH, to replicate NAC, we load all NACs.
     !ks%eigKs = olap%Eig
@@ -137,8 +137,7 @@ module hamil
     ! the hamiltonian contains two parts, which are obtained by interpolation
     ! method between two ionic tims step
 
-    ! New intergration scheme is implemented, no interpolartion here any more.
-
+  
     ! The non-adiabatic coupling part
     ks%ham_c(:,:) = ks%NAcoup(:,:,RTIME) 
     ! ks%ham_dt(:,:) =(ks%NAcoup(:,:,XTIME) - ks%NAcoup(:,:,RTIME))  / REAL(inp%NELM,q)
@@ -188,6 +187,35 @@ module hamil
       !                     (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * TELE / inp%NELM
     end do
   end subroutine
+
+  subroutine make_hamil2(tion, TELE,  ks, inp)
+    implicit none
+
+    type(TDKS), intent(inout) :: ks
+    type(namdInfo), intent(in) :: inp
+    integer, intent(in) :: tion, TELE
+
+    integer :: i
+
+    ! the hamiltonian contains two parts, which are obtained by interpolation
+    ! method between two ionic tims step
+
+    ! The non-adiabatic coupling part
+    ks%ham_c(:,:) = ks%NAcoup(:,:,tion) + (ks%NAcoup(:,:,tion+1) - ks%NAcoup(:,:,tion)) * TELE / inp%NELM
+
+    ! multiply by -i * hbar
+    ks%ham_c = -imgUnit * hbar * ks%ham_c 
+    
+    ! the energy eigenvalue part
+    do i=1, ks%ndim
+      !Hii(t+0.5dt)
+      !ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,tion) + ks%eigKs(i,tion+1))
+      ks%ham_c(i,i) = ks%eigKs(i,tion) +  (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * TELE / inp%NELM
+    end do
+
+  end subroutine
+
+
 
   ! Acting the hamiltonian on the state vector
   subroutine hamil_act(ks)
