@@ -117,12 +117,12 @@ module hamil
   end subroutine
 
   ! constructing the hamiltonian by replicating NAC
-  subroutine make_hamil_rtime(tion, ks, inp)
+  subroutine make_hamil_rtime(tion, TELE, ks, inp)
     implicit none
 
     type(TDKS), intent(inout) :: ks
     type(namdInfo), intent(in) :: inp
-    integer, intent(in) :: tion
+    integer, intent(in) :: tion, TELE
     !real(kind=q) :: dt
     integer :: RTIME,XTIME
     integer :: i
@@ -139,18 +139,28 @@ module hamil
 
     ! New intergration scheme is implemented, no interpolartion here any more.
 
-    ! The non-adiabatic coupling part
-    ks%ham_c(:,:) = ks%NAcoup(:,:,RTIME) 
-    ! ks%ham_dt(:,:) =(ks%NAcoup(:,:,XTIME) - ks%NAcoup(:,:,RTIME))  / REAL(inp%NELM,q)
+    ! non-adiabatic coupling is actually at (t0+t1)/2
+    if (RTIME == 1) then
+       if (TELE <= (inp%NELM / 2)) then
+          ks%ham_c(:,:) = ks%NAcoup(:,:,RTIME ) - (ks%NAcoup(:,:,XTIME) - ks%NAcoup(:,:,RTIME)) * (inp%NELM/2 - TELE - 0.5_q) / inp%NELM
+       else 
+          ks%ham_c(:,:) = ks%NAcoup(:,:,RTIME ) + (ks%NAcoup(:,:,XTIME) - ks%NAcoup(:,:,RTIME)) * (TELE-inp%NELM/2 - 0.5_q ) / inp%NELM
+       end if
+    else
+       if (TELE <= (inp%NELM / 2)) then
+           ks%ham_c(:,:) = ks%NAcoup(:,:,RTIME - 1) + (ks%NAcoup(:,:,RTIME) - ks%NAcoup(:,:,RTIME-1)) * (TELE+inp%NELM/2 - 0.5_q) / inp%NELM
+       else 
+          ks%ham_c(:,:) = ks%NAcoup(:,:,RTIME ) + (ks%NAcoup(:,:,XTIME) - ks%NAcoup(:,:,RTIME)) * (TELE-inp%NELM/2 - 0.5_q ) / inp%NELM
+       end if
+    end if
 
     ! multiply by -i * hbar
-    ks%ham_c = -imgUnit * hbar * ks%ham_c
-    !ks%ham_dt = -imgUnit * hbar * ks%ham_dt
-
+    ks%ham_c = -imgUnit * hbar * ks%ham_c 
+    
     ! the energy eigenvalue part
     do i=1, ks%ndim
       !Hii(t+0.5dt)
-      ks%ham_c(i,i) = 0.5_q*(ks%eigKs(i,RTIME)+ks%eigKs(i,XTIME))
+      ks%ham_c(i,i) = ks%eigKs(i,RTIME) +  (ks%eigKs(i,XTIME) - ks%eigKs(i,RTIME)) * (TELE - 0.5_q) / inp%NELM
       !ks%ham_c(i,i) = ks%eigKs(i,RTIME) 
       ! ks%ham_dt(i,i) =(ks%eigKs(i,XTIME) - ks%eigKs(i,tion))  / REAL(inp%NELM,q)
     end do
@@ -187,6 +197,39 @@ module hamil
       !ks%ham_c(i,i) = ks%eigKs(i,tion)
       !                     (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * TELE / inp%NELM
     end do
+  end subroutine
+
+  subroutine make_hamil3(tion, TELE,  ks, inp)
+    implicit none
+
+    type(TDKS), intent(inout) :: ks
+    type(namdInfo), intent(in) :: inp
+    integer, intent(in) :: tion, TELE
+
+    integer :: i
+
+    ! the hamiltonian contains two parts, which are obtained by interpolation
+    ! method between two ionic tims step
+
+    ! The non-adiabatic coupling part
+    ! non-adiabatic coupling is actually at (t0+t1)/2
+    if (TELE <= (inp%NELM / 2)) then
+       ks%ham_c(:,:) = ks%NAcoup(:,:,tion - 1) + (ks%NAcoup(:,:,tion) - ks%NAcoup(:,:,tion-1)) * (TELE+inp%NELM/2 - 0.5_q) / inp%NELM
+    else 
+       ks%ham_c(:,:) = ks%NAcoup(:,:,tion ) + (ks%NAcoup(:,:,tion+1) - ks%NAcoup(:,:,tion)) * (TELE-inp%NELM/2 - 0.5_q ) / inp%NELM
+    end if
+
+    ! multiply by -i * hbar
+    ks%ham_c = -imgUnit * hbar * ks%ham_c 
+    
+    ! the energy eigenvalue part
+    ! slighty different, but it won't be a big deal
+    do i=1, ks%ndim
+      !Hii(t+0.5dt)
+      !ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,tion) + ks%eigKs(i,tion+1))
+      ks%ham_c(i,i) = ks%eigKs(i,tion) +  (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * (TELE - 0.5_q) / inp%NELM
+    end do
+
   end subroutine
 
   ! Acting the hamiltonian on the state vector
