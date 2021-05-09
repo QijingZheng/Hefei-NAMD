@@ -9,114 +9,128 @@ module TimeProp
   
   !Use Trotter formula to integrate the Time-dependtent Schrodinger equation
   !The new scheme provides a robust and efficient integration. The electronic
-  !time step (POTIM/NELM) may be increased up to the value of the nuclear time step
+  !time step (POTIM/NELM) may be increased up to the value of the nuclear time step (Not in all)
   !Always check convergence before using a small NELM 
   !This scheme is proposed by Akimov, A. V., & Prezhdo, O. V. J. Chem. Theory Comput. 2014, 10, 2, 789–804
   
-  subroutine rot1(ks,phi,i,j)
-    implicit none
-    type(TDKS), intent(inout)  :: ks
-    real(kind=q),intent(in):: phi
-    integer,intent(in) :: i,j
-    complex(kind=q) :: psi_i,psi_j
-
-    psi_i=dcos(phi)*ks%psi_c(i)+dsin(phi)*ks%psi_c(j)
-    psi_j=-1.0_q*dsin(phi)*ks%psi_c(i)+dcos(phi)*ks%psi_c(j)
-    ks%psi_c(i)=psi_i
-    ks%psi_c(j)=psi_j
-  end subroutine
   
-  subroutine rot2(ks,phi,i,j)
-    implicit none
-    type(TDKS), intent(inout)  :: ks
-    real(kind=q),intent(in):: phi
-    integer,intent(in) :: i,j
-    complex(kind=q) :: psi_i,psi_j
-
-    psi_i=dcos(phi)*ks%psi_c(i)+imgUnit*dsin(phi)*ks%psi_c(j)
-    psi_j=imgUnit*dsin(phi)*ks%psi_c(i)+dcos(phi)*ks%psi_c(j)
-    ks%psi_c(i)=psi_i
-    ks%psi_c(j)=psi_j
-  end subroutine
-
-
-
-
-  subroutine Phase(ks,dt,i)
-    implicit none
-    type(TDKS), intent(inout)  :: ks
-    real(kind=q),intent(in) :: dt 
-      
-    real(kind=q)  :: phi
-    integer,intent(in) :: i
-
-    phi=-dt*real(ks%ham_c(i,i),q)/hbar
-    ks%psi_c(i)=(dcos(phi)+imgUnit*dsin(phi))*ks%psi_c(i)
-  end subroutine
-
-  subroutine rot(ks,dt,i,j)
-    type(TDKS), intent(inout)  :: ks
-    real(kind=q),intent(in) :: dt
-    integer,intent(in) :: i,j
-
-
-    real(kind=q) :: phi1,phi2
-    
-    phi1=0.5_q*dt*DIMAG(ks%ham_c(i,j))/hbar
-    phi2=-dt*Real(ks%ham_c(i,j),q)/hbar
+  !This scheme has been revised by Dr.Li yunhai (liyunhai1016@hotmail.com)
+  !To use this scheme, the offdiagonal elements of Hamiltonian should be real numbers (without
+  !the the imaginary unit) 
   
-  
-  
-    call rot1(ks,phi1,i,j)
-    call rot2(ks,phi2,i,j)
-    call rot1(ks,phi1,i,j)
-  
-  
-  end subroutine
-
-  subroutine PropagationT(ks,inp,tion)
+   subroutine PropagationT(ks, inp, tion)
     implicit none
     type(TDKS), intent(inout)  :: ks
     type(namdInfo), intent(in) :: inp
     integer, intent(in) :: tion
-    
-    integer :: i,j,tele
+
+    integer :: tele
+    integer :: i, j
     real(kind=q) :: edt
+    
 
-    call make_hamil(tion, ks, inp)
-    ks%pop_a(:,tion) = CONJG(ks%psi_c) * ks%psi_c
-    ks%norm(tion) = SUM(ks%pop_a(:,tion))
-    ks%psi_a(:,tion) = ks%psi_c
-
-    ks%pop_a(:,tion) = ks%pop_a(:,tion)/ks%norm(tion) 
-
-    !Debug only
-    !write(98,'(*(E))') tion,real(dconjg(ks%psi_c)*ks%psi_c),real(sum(dconjg(ks%psi_c)*ks%psi_c))
+    integer :: jj, kk
+    complex(kind=q) :: phi, cos_phi, sin_phi, cjj, ckk
+    complex(kind=q), parameter :: miuno = (0.0_q, -1.0_q)
     
     
+    
+
+
+
     edt = inp%POTIM / inp%NELM
-    do tele = 1, inp%NELM
-    do i=1,ks%NDIM
-      do j= i+1,ks%NDIM
-        call rot(ks,0.5_q*edt,i,j)
-      end do
-    end do
+    ! write(*,*) inp%POTIM, inp%NELM, edt
 
-    do i=1,ks%NDIM
-      call phase(ks,edt,i)
-    end do
+    ! the OUTER loop
+    !!!do tion = 1, inp%NAMDTIME - 1
+    !!!  ks%pop_a(:,tion) = CONJG(ks%psi_c) * ks%psi_c
+    !!!  ks%norm(tion) = SUM(ks%pop_a(:,tion))
+    !!!  ks%psi_a(:,tion) = ks%psi_c
 
-    do i=ks%NDIM,1,-1
-      do j=ks%NDIM,i+1,-1
-        call rot(ks,0.5_q*edt,i,j)
+      ! check the norm of the state
+      ! write(*,*) tion, ks%norm(tion), ks%psi_c(:)
+      ! call cpu_time(start)
+      ! the INNER loop
+      ! do tele = 1, inp%NELM-1
+      do tele = 1, inp%NELM
+        ! construct hamiltonian matrix
+        !Exact
+        call make_hamil3(tion, tele, ks, inp)
+        !Convential 
+        !call make_hamil2(tion, tele, ks, inp)
+
+
+        ! propagate the psi_c according to Liouville-Trotter algorithm
+        !   exp[i*(L_{ij}+L_i)*dt/2]
+        ! = exp(i*L_{ij}*dt/2) * exp(i*L_i*dt/2) * exp(i*L_i*dt/2) * exp(i*L_{ij}*dt/2)
+        ! = exp(i*L_{ij}*dt/2) * exp(i*L_i*dt) * exp(i*L_{ij}*dt/2)
+
+        ! First L_{ij} part
+        
+        !Changed the matrix structure for NAC.
+        !Now Ham_c(i,j) is stored as  ks%ham_c(j,i)
+        !Weibin
+
+        do jj = 1, inp%NBASIS
+          do kk = jj+1, inp%NBASIS
+            phi = 0.5_q * edt * miuno * ks%ham_c(kk, jj) / hbar
+            cos_phi = cos(phi)
+            sin_phi = sin(phi)
+            cjj = ks%psi_c(jj)
+            ckk = ks%psi_c(kk)
+            ks%psi_c(jj) =  cos_phi * cjj + sin_phi * ckk
+            ks%psi_c(kk) = -sin_phi * cjj + cos_phi * ckk
+          end do
+        end do
+        
+        ! Li part
+
+        !Changed the matrix structure for NAC.
+        !Now Ham_c(i,j) is stored as  ks%ham_c(j,i)
+        !Weibin
+
+
+        do jj = 1, inp%NBASIS
+          phi = edt * miuno * ks%ham_c(jj, jj) / hbar
+          ks%psi_c(jj) = ks%psi_c(jj) * exp(phi)
+        end do
+
+        ! Second L_{ij} part
+        do jj = inp%NBASIS, 1, -1
+          do kk = inp%NBASIS, jj+1, -1
+            phi = 0.5_q * edt * miuno * ks%ham_c(kk, jj) / hbar
+            cos_phi = cos(phi)
+            sin_phi = sin(phi)
+            cjj = ks%psi_c(jj)
+            ckk = ks%psi_c(kk)
+            ks%psi_c(jj) =  cos_phi * cjj + sin_phi * ckk
+            ks%psi_c(kk) = -sin_phi * cjj + cos_phi * ckk
+
+          end do
+        end do
       end do
-    end do
-    
-    !Debug only
-    !write(98,*)  "psi",tion,tele,dconjg(ks%psi_c)*ks%psi_c,sum(dconjg(ks%psi_c)*ks%psi_c)
-    
-    end do   
+
+     ks%pop_a(:,tion) = CONJG(ks%psi_c) * ks%psi_c
+     ks%norm(tion) = SUM(ks%pop_a(:,tion))
+     if (ks%norm(tion) <= 0.99_q) then
+        write(*,*) "Error in Electronic Propagation"
+        stop
+     end if
+ 
+     ks%psi_a(:,tion) = ks%psi_c
+     ks%pop_a(:,tion) = ks%pop_a(:,tion)/ks%norm(tion) 
+
+
+      !write(89,*) tion, conjg(ks%psi_c)*ks%psi_c
+      !write(89,*) 'sum', sum(conjg(ks%psi_c)*ks%psi_c)
+      ! ! end of the INNER loop
+      ! ! call cpu_time(fin)
+      ! ! write(*,*) "T_ion ", tion, fin - start
+    ! end do
+    ! end of the OUTER loop
   end subroutine
+ 
+  
 
 
 !!  subroutine Propagation(ks, inp, tion)

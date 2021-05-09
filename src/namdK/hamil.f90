@@ -66,8 +66,8 @@ module hamil
       !!!!allocate(ks%psi_p(N))
       !!!!allocate(ks%psi_n(N))
       allocate(ks%hpsi(N))
-      allocate(ks%psi_a(N, inp%NAMDTIME))
-      allocate(ks%pop_a(N, inp%NAMDTIME))
+      allocate(ks%psi_a(N, 0:inp%NAMDTIME))
+      allocate(ks%pop_a(N, 0:inp%NAMDTIME))
       allocate(ks%norm(inp%NAMDTIME))
       !!!!allocate(ks%pop_c(N))
       !!!!allocate(ks%pop_n(N))
@@ -78,10 +78,10 @@ module hamil
       !allocate(ks%eigKs(N, inp%NAMDTIME))
       allocate(ks%eigKs(N, inp%NSW))
       !allocate(ks%NAcoup(N, N, inp%NAMDTIME))
-      allocate(ks%NAcoup(N, N, inp%NSW-1))
+      allocate(ks%NAcoup(N, N, 0:inp%NSW-1))
 
-      allocate(ks%sh_pops(N, inp%NAMDTIME))
-      allocate(ks%sh_prop(N, inp%NAMDTIME))
+      allocate(ks%sh_pops(N, 0:inp%NAMDTIME))
+      allocate(ks%sh_prop(N, 0:inp%NAMDTIME))
       allocate(ks%Bkm(N))
       !!allocate(ks%dish_pops(N, inp%RTIME))
       !!allocate(ks%recom_pops(N,inp%RTIME))
@@ -103,13 +103,21 @@ module hamil
     !Using NAMDTIME in NAC loading
  
     do i=1, inp%NAMDTIME
+    
     ! We don't need all the information, only a section of it
        ks%eigKs(:,i) = olap%Eig(:, inp%NAMDTINI + i - 1)
     ! Divide by 2 * POTIM here, because we didn't do this in the calculation
     ! of couplings
        ks%NAcoup(:,:,i) = olap%Dij(:,:, inp%NAMDTINI + i - 1) / (2*inp%POTIM)
     end do
-    !write(500,*) "eig",olap%Eig
+
+    ! new hamil construnction needs nac at t-dt, t, t+dt
+    ! so let nac(0-dt) = nac(0)
+    if (inp%NAMDTINI == 1) then
+       ks%NAcoup(:,:,0) = olap%Dij(:,:,inp%NAMDTINI) / (2*inp%POTIM)
+    else   
+       ks%NAcoup(:,:,0) = olap%Dij(:,:,inp%NAMDTINI - 1 ) / (2*inp%POTIM)
+    end if
 
     !In DISH, to replicate NAC, we load all NACs.
     !ks%eigKs = olap%Eig
@@ -137,8 +145,7 @@ module hamil
     ! the hamiltonian contains two parts, which are obtained by interpolation
     ! method between two ionic tims step
 
-    ! New intergration scheme is implemented, no interpolartion here any more.
-
+  
     ! The non-adiabatic coupling part
     ks%ham_c(:,:) = ks%NAcoup(:,:,RTIME) 
     ! ks%ham_dt(:,:) =(ks%NAcoup(:,:,XTIME) - ks%NAcoup(:,:,RTIME))  / REAL(inp%NELM,q)
@@ -188,6 +195,68 @@ module hamil
       !                     (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * TELE / inp%NELM
     end do
   end subroutine
+
+  subroutine make_hamil2(tion, TELE,  ks, inp)
+    implicit none
+
+    type(TDKS), intent(inout) :: ks
+    type(namdInfo), intent(in) :: inp
+    integer, intent(in) :: tion, TELE
+
+    integer :: i
+
+    ! the hamiltonian contains two parts, which are obtained by interpolation
+    ! method between two ionic tims step
+
+    ! The non-adiabatic coupling part
+    ks%ham_c(:,:) = ks%NAcoup(:,:,tion) + (ks%NAcoup(:,:,tion+1) - ks%NAcoup(:,:,tion)) * TELE / inp%NELM
+
+    ! multiply by -i * hbar
+    ks%ham_c = -imgUnit * hbar * ks%ham_c 
+    
+    ! the energy eigenvalue part
+    do i=1, ks%ndim
+      !Hii(t+0.5dt)
+      !ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,tion) + ks%eigKs(i,tion+1))
+      ks%ham_c(i,i) = ks%eigKs(i,tion) +  (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * TELE / inp%NELM
+    end do
+
+  end subroutine
+
+  subroutine make_hamil3(tion, TELE,  ks, inp)
+    implicit none
+
+    type(TDKS), intent(inout) :: ks
+    type(namdInfo), intent(in) :: inp
+    integer, intent(in) :: tion, TELE
+
+    integer :: i
+
+    ! the hamiltonian contains two parts, which are obtained by interpolation
+    ! method between two ionic tims step
+
+    ! The non-adiabatic coupling part
+    ! non-adiabatic coupling is actually at (t0+t1)/2
+    if (TELE <= (inp%NELM / 2)) then
+       ks%ham_c(:,:) = ks%NAcoup(:,:,tion - 1) + (ks%NAcoup(:,:,tion) - ks%NAcoup(:,:,tion-1)) * (TELE+inp%NELM/2 - 0.5_q) / inp%NELM
+    else 
+       ks%ham_c(:,:) = ks%NAcoup(:,:,tion ) + (ks%NAcoup(:,:,tion+1) - ks%NAcoup(:,:,tion)) * (TELE-inp%NELM/2 - 0.5_q ) / inp%NELM
+    end if
+
+    ! multiply by -i * hbar
+    ks%ham_c = -imgUnit * hbar * ks%ham_c 
+    
+    ! the energy eigenvalue part
+    ! slighty different, but it won't be a big deal
+    do i=1, ks%ndim
+      !Hii(t+0.5dt)
+      !ks%ham_c(i,i) = 0.5_q * (ks%eigKs(i,tion) + ks%eigKs(i,tion+1))
+      ks%ham_c(i,i) = ks%eigKs(i,tion) +  (ks%eigKs(i,tion+1) - ks%eigKs(i,tion)) * (TELE - 0.5_q) / inp%NELM
+    end do
+
+  end subroutine
+
+
 
   ! Acting the hamiltonian on the state vector
   subroutine hamil_act(ks)

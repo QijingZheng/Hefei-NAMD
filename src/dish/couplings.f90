@@ -234,8 +234,10 @@ module couplings
     olap_sec%TSTEPS = inp%NSW
     olap_sec%dt = inp%POTIM
     allocate(olap_sec%Dij(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
-    allocate(olap_sec%DijR(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
-    allocate(olap_sec%DijI(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
+
+    !Trotter factorization integrator is not compatible with complex NAC
+    !allocate(olap_sec%DijR(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
+    !allocate(olap_sec%DijI(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
     allocate(olap_sec%Eig(olap_sec%NBANDS, olap_sec%TSTEPS))
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -248,7 +250,7 @@ module couplings
     if (lcoup) then
       ! file containing couplings exists, then read it
       if (inp%LCPTXT) then
-        call readNaEigcpx(olap_sec, inp)
+        call readNaEig(olap_sec, inp)
         if (inp%LSPACE) then
           call initspace(olap_sec,inp)
         end if
