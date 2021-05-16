@@ -352,8 +352,8 @@ module couplings
     !Changed NAC martix structure.
     !NAC(t,i,j) is stored as Dij(j,i,t) 
     
-    N = inp%NSW - 1
-    do j=1, N + 1
+    N = inp%NSW 
+    do j=1, N 
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
@@ -390,13 +390,14 @@ module couplings
       stop
     end if
 
-    N = inp%NSW - 1
+    N = inp%NSW 
     !len(NAC)=NSW Since NAC is at time t+0.5dt, while EIG is at time t
     !So we use NSW-1 NAC and NSW EIG here, and calculate average EIG at t+0.5dt
+    ! 05/16/21 In revised interpolation, we need both NSW NAC and NSW EIG.
     !for Hii(t+0.5dt) in hamil.f90
     !Changed NAC martix structure.
     !NAC(t,i,j) is stored as Dij(j,i,t) 
-    do j=1, N + 1
+    do j=1, N 
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N

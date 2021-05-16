@@ -227,13 +227,13 @@ module couplings
     olap%NBANDS = inp%NBANDS
     olap%TSTEPS = inp%NSW
     olap%dt = inp%POTIM
-    allocate(olap%Dij(olap%NBANDS, olap%NBANDS, olap%TSTEPS-1))
+    allocate(olap%Dij(olap%NBANDS, olap%NBANDS, olap%TSTEPS))
     allocate(olap%Eig(olap%NBANDS, olap%TSTEPS))
 
     olap_sec%NBANDS = inp%NBASIS
     olap_sec%TSTEPS = inp%NSW
     olap_sec%dt = inp%POTIM
-    allocate(olap_sec%Dij(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
+    allocate(olap_sec%Dij(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS))
 
     !Trotter factorization integrator is not compatible with complex NAC
     !allocate(olap_sec%DijR(olap_sec%NBANDS, olap_sec%NBANDS, olap_sec%TSTEPS-1))
@@ -347,8 +347,8 @@ module couplings
       stop
     end if
 
-    N = inp%NSW - 1
-    do j=1, N + 1
+    N = inp%NSW 
+    do j=1, N 
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
@@ -384,11 +384,12 @@ module couplings
       stop
     end if
 
-    N = inp%NSW - 1
+    N = inp%NSW 
     !len(NAC)=NSW Since NAC is at time t+0.5dt, while EIG is at time t
     !So we use NSW-1 NAC and NSW EIG here, and calculate average EIG at t+0.5dt
+    ! 05/16/21 In revised interpolation, we need both NSW NAC and NSW EIG.
     !for Hii(t+0.5dt) in hamil.f90
-    do j=1, N + 1
+    do j=1, N 
       read(unit=22, fmt=*) (olap_sec%Eig(i,j), i=1, inp%NBASIS)
     end do
     do k=1, N
