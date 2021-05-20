@@ -112,7 +112,7 @@ module TimeProp
 
      ks%pop_a(:,tion) = CONJG(ks%psi_c) * ks%psi_c
      ks%norm(tion) = SUM(ks%pop_a(:,tion))
-     if (ks%norm(tion) <= 0.99_q) then
+     if (ks%norm(tion) <= 0.99_q .OR. ks%norm(tion)>=1.01_q) then
         write(*,*) "Error in Electronic Propagation"
         stop
      end if

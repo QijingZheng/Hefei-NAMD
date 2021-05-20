@@ -27,6 +27,7 @@ module TimeProp
     integer :: tele
     integer :: i, j
     real(kind=q) :: edt
+    real(kind=q) :: norm
     
 
     integer :: jj, kk
@@ -109,8 +110,8 @@ module TimeProp
           end do
         end do
       end do
-
-     if ( REAL(SUM(CONJG(ks%psi_c) * ks%psi_c)) <= 0.99_q) then
+     norm = REAL(SUM(CONJG(ks%psi_c) * ks%psi_c)) 
+     if ( norm <= 0.99_q .OR. norm >= 1.01_q)  then
         write(*,*) "Error in Electronic Propagation"
         stop
      end if
