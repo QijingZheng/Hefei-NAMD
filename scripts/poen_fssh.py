@@ -9,7 +9,7 @@ def EnergyFromPro(infile='PROCAR'):
     """
     Extract band energies from PROCAR.
     """
-    print infile 
+    print(infile) 
     assert os.path.isfile(infile), '%s cannot be found!' % infile
     FileContents = [line for line in open(infile) if line.strip()]
 
@@ -20,7 +20,7 @@ def EnergyFromPro(infile='PROCAR'):
 
     energies = np.asarray([line.split()[-4] for line in FileContents
                             if 'occ.' in line], dtype=float)
-    nspin = energies.shape[0] / (nkpts * nbands)
+    nspin = energies.shape[0] // (nkpts * nbands)
     energies.resize(nspin, nkpts, nbands)
 
     return energies
@@ -58,7 +58,7 @@ if os.path.isfile('all_en.npy'):
 else:
     # for gamma point version, no-spin
     energies = parallel_energy(runDirs, nproc=nproc)
-    print energies.shape
+    print(energies.shape)
     energies = energies[:, 0,0, :]
 
     np.save('all_en.npy', energies)
