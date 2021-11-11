@@ -34,7 +34,7 @@ def WeightFromPro(infile='PROCAR', whichAtom=None, spd=None):
         Weights = np.asarray([line.split()[-1] for line in FileContents
                               if not re.search('[a-zA-Z]', line)], dtype=float)
     
-    nspin = Weights.shape[0] / (nkpts * nbands * nions)
+    nspin = Weights.shape[0] // (nkpts * nbands * nions)
     Weights.resize(nspin, nkpts, nbands, nions)
 
     Energies = np.asarray([line.split()[-4] for line in FileContents
