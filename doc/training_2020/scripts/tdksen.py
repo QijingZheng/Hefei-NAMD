@@ -3,6 +3,7 @@
 import os, re
 import numpy as np
 from glob import glob
+import sys
 
 import matplotlib as mpl
 mpl.use('agg')
@@ -86,10 +87,11 @@ whichA  = np.arange(54) + 54
 # whichB  = range(54)
 Alabel  = r'MoS$_2$'
 Blabel  = r'WS$_2$'
+Efermi  = sys.exit("""Run "grep E-fermi OUTCAR | awk '{print $3}' | tail -1" in the scf folder and replace here with the output.""")
 
 if os.path.isfile('all_wht.npy'):
     Wht = np.load('all_wht.npy')
-    Enr = np.load('all_en.npy')
+    Enr = np.load('all_en.npy') - Efermi
 else:
     # for gamma point version, no-spin
     Enr, Wht = parallel_wht(runDirs, whichA, nproc=nproc)
@@ -105,6 +107,8 @@ else:
 
     np.save('all_wht.npy', Wht)
     np.save('all_en.npy', Enr)
+
+    Enr -= Efermi
 
 ############################################################
 fig = plt.figure()
